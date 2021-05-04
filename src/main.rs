@@ -3,18 +3,41 @@ struct SpecFileEntry {
     tag: String,
     title: String,
 }
+struct SpecFilePageEntry {
+    page: u64,
+    description: String,
+}
 
-fn spec_file_add(body_contents: &mut Vec<String>, e: &SpecFileEntry) {
+fn spec_file_add(
+    body_contents: &mut Vec<String>,
+    e: &SpecFileEntry,
+    indexes: &Vec<&SpecFilePageEntry>,
+) {
     body_contents.push(format!(
         r##"
-<li><a href="{}">
+<li class="spec">
+<a href="{}" class="spec-link">
   [{}]
   {}
-</a></li>
+</a>
+<ul>
+{}
+</ul>
+</li>
 "##,
         e.path.trim(),
         e.tag.trim(),
-        e.title.trim()
+        e.title.trim(),
+        indexes
+            .into_iter()
+            .map(|p| format!(
+                r##"<li><a href="{}#page={}">p.{1}</a>: {}</li>"##,
+                e.path.trim(),
+                p.page,
+                p.description
+            ))
+            .collect::<Vec<String>>()
+            .join("\n")
     ));
 }
 
@@ -33,6 +56,10 @@ May 2019 Revision 1.2
         "##
             .to_string(),
         },
+        &vec![&SpecFilePageEntry {
+            page: 406,
+            description: "5.4.8 Port Status and Control Register (PORTSC)".to_string(),
+        }],
     );
     spec_file_add(
         &mut body_contents,
@@ -44,6 +71,32 @@ Universal Serial Bus Specification Revision 2.0
         "##
             .to_string(),
         },
+        &vec![
+            &SpecFilePageEntry {
+                page: 268,
+                description: "Figure 9-1. Device State Diagram".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 278,
+                description: "9.4 Standard Device Requests".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 279,
+                description: "Table 9-4. Standard Request Codes".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 279,
+                description: "Table 9-5. Descriptor Types".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 281,
+                description: "9.4.3 Get Descriptor Request".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 301,
+                description: "9.6.7 String Descriptor".to_string(),
+            },
+        ],
     );
     spec_file_add(
         &mut body_contents,
@@ -58,6 +111,10 @@ Communications Devices
         "##
             .to_string(),
         },
+        &vec![&SpecFilePageEntry {
+            page: 25,
+            description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
+        }],
     );
     spec_file_add(
         &mut body_contents,
@@ -72,6 +129,7 @@ Ethernet Control Model Devices Revision 1.2
         "##
             .to_string(),
         },
+        &vec![],
     );
     body_contents.push(String::from("</ul>"));
     let body_contents = body_contents.join("\n");
@@ -81,6 +139,22 @@ Ethernet Control Model Devices Revision 1.2
 <head>
   <meta charset="utf-8">
   <base target="_blank">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&amp;display=swap" rel="stylesheet">
+  <style>
+body {{
+    font-family: 'Source Code Pro', monospace;
+}}
+a {{
+    color: #1d68cd;
+    text-decoration: none;
+}}
+.spec {{
+    margin-top: 16px;
+}}
+.spec-link {{
+    font-size: large;
+}}
+</style>
 </head>
 <body>
   <h1>os_dev_specs</h1>
