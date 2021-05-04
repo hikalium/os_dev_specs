@@ -11,7 +11,7 @@ struct SpecFilePageEntry {
 fn spec_file_add(
     body_contents: &mut Vec<String>,
     e: &SpecFileEntry,
-    indexes: &Vec<&SpecFilePageEntry>,
+    indexes: &[&SpecFilePageEntry],
 ) {
     body_contents.push(format!(
         r##"
@@ -29,7 +29,7 @@ fn spec_file_add(
         e.tag.trim(),
         e.title.trim(),
         indexes
-            .into_iter()
+            .iter()
             .map(|p| format!(
                 r##"<li><a href="{}#page={}">p.{1}</a>: {}</li>"##,
                 e.path.trim(),
@@ -42,8 +42,7 @@ fn spec_file_add(
 }
 
 fn main() {
-    let mut body_contents = vec![];
-    body_contents.push(String::from("<ul>"));
+    let mut body_contents = vec!["<ul>".to_string()];
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
@@ -56,7 +55,7 @@ May 2019 Revision 1.2
         "##
             .to_string(),
         },
-        &vec![&SpecFilePageEntry {
+        &[&SpecFilePageEntry {
             page: 406,
             description: "5.4.8 Port Status and Control Register (PORTSC)".to_string(),
         }],
@@ -71,7 +70,7 @@ Universal Serial Bus Specification Revision 2.0
         "##
             .to_string(),
         },
-        &vec![
+        &[
             &SpecFilePageEntry {
                 page: 268,
                 description: "Figure 9-1. Device State Diagram".to_string(),
@@ -111,7 +110,7 @@ Communications Devices
         "##
             .to_string(),
         },
-        &vec![&SpecFilePageEntry {
+        &[&SpecFilePageEntry {
             page: 25,
             description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
         }],
@@ -129,7 +128,7 @@ Ethernet Control Model Devices Revision 1.2
         "##
             .to_string(),
         },
-        &vec![],
+        &[],
     );
     body_contents.push(String::from("</ul>"));
     let body_contents = body_contents.join("\n");
