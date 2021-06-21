@@ -2,6 +2,7 @@
 
 mkdir -p download
 mkdir -p spec
+wget -O spec/DEN0024A_v8_architecture_PG.pdf https://documentation-service.arm.com/static/5fbd26f271eff94ef49c7020?token=
 wget -N -P download/ https://www.usb.org/sites/default/files/CDC1.2_WMC1.1_012011.zip
 unzip -o -d spec/ download/CDC1.2_WMC1.1_012011.zip
 wget -N -P download/ https://www.usb.org/sites/default/files/usb_20_20190524.zip

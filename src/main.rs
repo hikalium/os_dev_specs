@@ -46,6 +46,22 @@ fn main() {
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
+            path: "./spec/DEN0024A_v8_architecture_PG.pdf".to_string(),
+            tag: "ARMV8A".to_string(),
+            title: r##"
+ARM Cortex-A Series Version: 1.0
+Programmer’s Guide for ARMv8-A
+        "##
+            .to_string(),
+        },
+        &[&SpecFilePageEntry {
+            page: 88,
+            description: "6.5.4 Hint instructions (WFI)".to_string(),
+        }],
+    );
+    spec_file_add(
+        &mut body_contents,
+        &SpecFileEntry {
             path: "./spec/extensible-host-controler-interface-usb-xhci.pdf".to_string(),
             tag: "XHCI".to_string(),
             title: r##"
@@ -55,10 +71,36 @@ May 2019 Revision 1.2
         "##
             .to_string(),
         },
-        &[&SpecFilePageEntry {
-            page: 406,
-            description: "5.4.8 Port Status and Control Register (PORTSC)".to_string(),
-        }],
+        &[
+            &SpecFilePageEntry {
+                page: 160,
+                description: "4.8 Endpoint".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 163,
+                description: "Figure 4-5: Endpoint State Diagram".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 406,
+                description: "5.4.8 Port Status and Control Register (PORTSC)".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 454,
+                description: "6.2.3.2 Configure Endpoint Command Usage".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 459,
+                description: "6.2.5 Input Context".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 461,
+                description: "6.2.5.1 Input Control Context".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 491,
+                description: "6.4.3.5 Configure Endpoint Command TRB".to_string(),
+            },
+        ],
     );
     spec_file_add(
         &mut body_contents,
@@ -92,6 +134,14 @@ Universal Serial Bus Specification Revision 2.0
                 description: "9.4.3 Get Descriptor Request".to_string(),
             },
             &SpecFilePageEntry {
+                page: 282,
+                description: r##""All devices must provide a device descriptor and at least one configuration descriptor""##.to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 297,
+                description: r##"9.6.6 Endpoint Descriptor"##.to_string(),
+            },
+            &SpecFilePageEntry {
                 page: 301,
                 description: "9.6.7 String Descriptor".to_string(),
             },
@@ -110,10 +160,33 @@ Communications Devices
         "##
             .to_string(),
         },
-        &[&SpecFilePageEntry {
-            page: 25,
-            description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
-        }],
+        &[
+            &SpecFilePageEntry {
+                page: 16,
+                description: "3.4.2 Data Class Interface".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 20,
+                description: "02h: Communications Device Class Code".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 20,
+                description: "02h: Communications Interface Class Code".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 20,
+                description: "06h: Ethernet Networking Control Model: Interface Subclass Code"
+                    .to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 21,
+                description: "0Ah: Data Interface Class".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 25,
+                description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
+            },
+        ],
     );
     spec_file_add(
         &mut body_contents,
@@ -128,7 +201,21 @@ Ethernet Control Model Devices Revision 1.2
         "##
             .to_string(),
         },
-        &[],
+        &[
+            &SpecFilePageEntry {
+                page: 11,
+                description: r##"
+                The Data Class interface of a networking device shall have a minimum of two interface settings. The first
+                setting (the default interface setting) includes no endpoints and therefore no networking traffic is
+                exchanged whenever the default interface setting is selected. One or more additional interface settings
+                are used for normal operation, and therefore each includes a pair of endpoints (one IN, and one OUT) to
+                exchange network traffic. The host shall select an alternate interface setting to initialize the network
+                aspects of the device and to enable the exchange of network traffic.
+
+                    "##.to_string(),
+            },
+
+        ],
     );
     body_contents.push(String::from("</ul>"));
     let body_contents = body_contents.join("\n");
