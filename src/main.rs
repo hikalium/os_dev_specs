@@ -73,8 +73,24 @@ May 2019 Revision 1.2
         },
         &[
             &SpecFilePageEntry {
+                page: 57,
+                description: "Figure 3-3: General Architecture of the xHCI interface".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 83,
+                description: "4.3 USB Device Initialization".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 91,
+                description: "4.3.6 Setting Alternate Interfaces".to_string(),
+            },
+            &SpecFilePageEntry {
                 page: 160,
                 description: "4.8 Endpoint".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 161,
+                description: "4.8.2 Endpoint Context Initialization".to_string(),
             },
             &SpecFilePageEntry {
                 page: 163,
