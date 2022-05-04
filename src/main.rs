@@ -44,6 +44,18 @@ fn main() {
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
+            id: "acpi_6_4",
+            title: r##"
+            Advanced Configuration and Power
+Interface (ACPI) Specification
+        "##
+            .to_string(),
+        },
+        &[],
+    );
+    spec_file_add(
+        &mut body_contents,
+        &SpecFileEntry {
             id: "armv8a_pg_1_0",
             title: r##"
 ARM Cortex-A Series Version: 1.0
@@ -55,6 +67,115 @@ Programmer’s Guide for ARMv8-A
             page: 88,
             description: "6.5.4 Hint instructions (WFI)".to_string(),
         }],
+    );
+    spec_file_add(
+        &mut body_contents,
+        &SpecFileEntry {
+            id: "cdc_1_2",
+            title: r##"
+Universal Serial Bus
+Class Definitions for
+Communications Devices
+        "##
+            .to_string(),
+        },
+        &[
+            &SpecFilePageEntry {
+                page: 16,
+                description: "3.4.2 Data Class Interface".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 20,
+                description: "02h: Communications Device Class Code".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 20,
+                description: "02h: Communications Interface Class Code".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 20,
+                description: "06h: Ethernet Networking Control Model: Interface Subclass Code"
+                    .to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 21,
+                description: "0Ah: Data Interface Class".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 25,
+                description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
+            },
+        ],
+    );
+    spec_file_add(
+        &mut body_contents,
+        &SpecFileEntry {
+            id: "ecm_1_2",
+            title: r##"
+Universal Serial Bus
+Communications Class
+Subclass Specification for
+Ethernet Control Model Devices Revision 1.2
+        "##
+            .to_string(),
+        },
+        &[],
+    );
+    spec_file_add(
+        &mut body_contents,
+        &SpecFileEntry {
+            id: "uefi_2_9",
+            title: r##"
+            Unified Extensible Firmware Interface (UEFI)
+Specification
+        "##
+            .to_string(),
+        },
+        &[],
+    );
+    spec_file_add(
+        &mut body_contents,
+        &SpecFileEntry {
+            id: "usb_2_0",
+            title: r##"
+Universal Serial Bus Specification Revision 2.0
+        "##
+            .to_string(),
+        },
+        &[
+            &SpecFilePageEntry {
+                page: 268,
+                description: "Figure 9-1. Device State Diagram".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 278,
+                description: "9.4 Standard Device Requests".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 279,
+                description: "Table 9-4. Standard Request Codes".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 279,
+                description: "Table 9-5. Descriptor Types".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 281,
+                description: "9.4.3 Get Descriptor Request".to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 282,
+                description: r##""All devices must provide a device descriptor and at least one configuration descriptor""##.to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 297,
+                description: r##"9.6.6 Endpoint Descriptor"##.to_string(),
+            },
+            &SpecFilePageEntry {
+                page: 301,
+                description: "9.6.7 String Descriptor".to_string(),
+            },
+        ],
     );
     spec_file_add(
         &mut body_contents,
@@ -116,117 +237,6 @@ May 2019 Revision 1.2
                 page: 491,
                 description: "6.4.3.5 Configure Endpoint Command TRB".to_string(),
             },
-        ],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &SpecFileEntry {
-            id: "usb_2_0",
-            title: r##"
-Universal Serial Bus Specification Revision 2.0
-        "##
-            .to_string(),
-        },
-        &[
-            &SpecFilePageEntry {
-                page: 268,
-                description: "Figure 9-1. Device State Diagram".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 278,
-                description: "9.4 Standard Device Requests".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 279,
-                description: "Table 9-4. Standard Request Codes".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 279,
-                description: "Table 9-5. Descriptor Types".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 281,
-                description: "9.4.3 Get Descriptor Request".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 282,
-                description: r##""All devices must provide a device descriptor and at least one configuration descriptor""##.to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 297,
-                description: r##"9.6.6 Endpoint Descriptor"##.to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 301,
-                description: "9.6.7 String Descriptor".to_string(),
-            },
-        ],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &SpecFileEntry {
-            id: "cdc_1_2",
-            title: r##"
-Universal Serial Bus
-Class Definitions for
-Communications Devices
-        "##
-            .to_string(),
-        },
-        &[
-            &SpecFilePageEntry {
-                page: 16,
-                description: "3.4.2 Data Class Interface".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 20,
-                description: "02h: Communications Device Class Code".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 20,
-                description: "02h: Communications Interface Class Code".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 20,
-                description: "06h: Ethernet Networking Control Model: Interface Subclass Code"
-                    .to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 21,
-                description: "0Ah: Data Interface Class".to_string(),
-            },
-            &SpecFilePageEntry {
-                page: 25,
-                description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
-            },
-        ],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &SpecFileEntry {
-            id: "cdc_1_2",
-            title: r##"
-Universal Serial Bus
-Communications Class
-Subclass Specification for
-Ethernet Control Model Devices Revision 1.2
-        "##
-            .to_string(),
-        },
-        &[
-            &SpecFilePageEntry {
-                page: 11,
-                description: r##"
-                The Data Class interface of a networking device shall have a minimum of two interface settings. The first
-                setting (the default interface setting) includes no endpoints and therefore no networking traffic is
-                exchanged whenever the default interface setting is selected. One or more additional interface settings
-                are used for normal operation, and therefore each includes a pair of endpoints (one IN, and one OUT) to
-                exchange network traffic. The host shall select an alternate interface setting to initialize the network
-                aspects of the device and to enable the exchange of network traffic.
-
-                    "##.to_string(),
-            },
-
         ],
     );
     body_contents.push(String::from("</ul>"));
