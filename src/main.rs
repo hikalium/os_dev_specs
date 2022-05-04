@@ -1,6 +1,5 @@
 struct SpecFileEntry {
-    path: String,
-    tag: String,
+    id: &'static str,
     title: String,
 }
 struct SpecFilePageEntry {
@@ -13,29 +12,28 @@ fn spec_file_add(
     e: &SpecFileEntry,
     indexes: &[&SpecFilePageEntry],
 ) {
+    let id = e.id.to_string();
+    let url = format!("./spec/{}.pdf", e.id.to_string().trim());
+    let title = e.title.trim();
     body_contents.push(format!(
         r##"
 <li class="spec">
-<a href="{}" class="spec-link">
-  [{}]
-  {}
+<a href="{url}" class="spec-link">
+  [{id}]
+  {title}
 </a>
 <ul>
 {}
 </ul>
 </li>
 "##,
-        e.path.trim(),
-        e.tag.trim(),
-        e.title.trim(),
         indexes
             .iter()
-            .map(|p| format!(
-                r##"<li><a href="{}#page={}">p.{1}</a>: {}</li>"##,
-                e.path.trim(),
-                p.page,
-                p.description
-            ))
+            .map(|p| {
+                let page = p.page;
+                let description = &p.description;
+                format!(r##"<li><a href="{url}#page={page}">p.{page}</a>: {description}</li>"##,)
+            })
             .collect::<Vec<String>>()
             .join("\n")
     ));
@@ -46,8 +44,7 @@ fn main() {
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
-            path: "./spec/DEN0024A_v8_architecture_PG.pdf".to_string(),
-            tag: "ARMV8A".to_string(),
+            id: "armv8a_pg_1_0",
             title: r##"
 ARM Cortex-A Series Version: 1.0
 Programmer’s Guide for ARMv8-A
@@ -62,8 +59,7 @@ Programmer’s Guide for ARMv8-A
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
-            path: "./spec/extensible-host-controler-interface-usb-xhci.pdf".to_string(),
-            tag: "XHCI".to_string(),
+            id: "xhci_1_2",
             title: r##"
 eXtensible Host Controller Interface for Universal Serial Bus (xHCI)
 Requirements Specification
@@ -97,6 +93,10 @@ May 2019 Revision 1.2
                 description: "Figure 4-5: Endpoint State Diagram".to_string(),
             },
             &SpecFilePageEntry {
+                page: 370,
+                description: "Register Attributes".to_string(),
+            },
+            &SpecFilePageEntry {
                 page: 406,
                 description: "5.4.8 Port Status and Control Register (PORTSC)".to_string(),
             },
@@ -121,8 +121,7 @@ May 2019 Revision 1.2
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
-            path: "./spec/usb_20_20190524/usb_20.pdf".to_string(),
-            tag: "USB2.0".to_string(),
+            id: "usb_2_0",
             title: r##"
 Universal Serial Bus Specification Revision 2.0
         "##
@@ -166,9 +165,7 @@ Universal Serial Bus Specification Revision 2.0
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
-            path: "./spec/CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf"
-                .to_string(),
-            tag: "USBCDC1.2".to_string(),
+            id: "cdc_1_2",
             title: r##"
 Universal Serial Bus
 Class Definitions for
@@ -207,8 +204,7 @@ Communications Devices
     spec_file_add(
         &mut body_contents,
         &SpecFileEntry {
-            path: "./spec/CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/ECM120.pdf".to_string(),
-            tag: "USBCDC/ECM120".to_string(),
+            id: "cdc_1_2",
             title: r##"
 Universal Serial Bus
 Communications Class

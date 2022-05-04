@@ -1,0 +1,7 @@
+5391acb80f69e865cdae53f982ce25b40add3a91  acpi_6_4.pdf
+bab45e78b4a60d5c301aeddbca282f8a1e2d34c1  armv8a_pg_1_0.pdf
+d00b676a9c3ecba2a4ed4479ae0c971457d8cffc  cdc_1_2.pdf
+d00b676a9c3ecba2a4ed4479ae0c971457d8cffc  ecm_1_2.pdf
+5c063ece1d249ec033ebf9947d1891b6e5611060  uefi_2_9.pdf
+5467fc5560c1df43297fb6212162392cca5c2cad  usb_2_0.pdf
+4c87ed2535f39468878810d2b23dcc48c8e8c9b7  xhci_1_2.pdf

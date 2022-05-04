@@ -1,3 +1,4 @@
 /target
-/spec
+/spec/*.pdf
+/spec_tmp
 /download
