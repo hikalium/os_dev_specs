@@ -55,13 +55,13 @@ function deploy_spec {
 		sed "s#${TMP_SPEC_DIR}/##g" | \
 		tee ${TMP_SPEC_DIR}/index.txt
 	if diff -u ${SPEC_DIR}/index.txt ${TMP_SPEC_DIR}/index.txt ; then
-		echo "No updates."
+		echo "Files up to date"
 	else
 		read -p "Diff found. Do you want to update? [Enter to proceed, or Ctrl-C to cancel]"
-		rm -rf ${SPEC_DIR} ; true
-		mkdir -p ${SPEC_DIR}
-		cp -rv ${TMP_SPEC_DIR}/* ${SPEC_DIR}
 	fi
+	rm -rf ${SPEC_DIR} ; true
+	mkdir -p ${SPEC_DIR}
+	cp -rv ${TMP_SPEC_DIR}/* ${SPEC_DIR}
 }
 
 def_spec_pdf uefi_2_9 https://uefi.org/sites/default/files/resources/UEFI_Spec_2_9_2021_03_18.pdf
