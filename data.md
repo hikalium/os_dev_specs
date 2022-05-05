@@ -1,3 +1,11 @@
+# `armv8a_pg_1_0`
+```
+ARM Cortex-A Series Version: 1.0 Programmer’s Guide for ARMv8-A
+pdf
+https://documentation-service.arm.com/static/5fbd26f271eff94ef49c7020
+```
+- p.88: 6.5.4 Hint instructions (WFI)
+
 # `acpi_6_4`
 ```
 Advanced Configuration and Power Interface (ACPI) Specification
@@ -28,16 +36,8 @@ https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifica
 - p.406: 5.4.8 Port Status and Control Register (PORTSC)
 - p.454: 6.2.3.2 Configure Endpoint Command Usage
 - p.459: 6.2.5 Input Context
-- p.461: 6.2.5.1 Input Control Context
 - p.491: 6.4.3.5 Configure Endpoint Command TRB
-
-# `armv8a_pg_1_0`
-```
-ARM Cortex-A Series Version: 1.0 Programmer’s Guide for ARMv8-A
-pdf
-https://documentation-service.arm.com/static/5fbd26f271eff94ef49c7020
-```
-- p.88: 6.5.4 Hint instructions (WFI)
+- p.461: 6.2.5.1 Input Control Context
 
 # `usb_2_0`
 ```

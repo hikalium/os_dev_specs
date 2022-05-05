@@ -13,7 +13,7 @@ struct PdfEntry {
     id: String,
     title: String,
 }
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct PdfPageEntry {
     page: u64,
     description: String,
@@ -68,14 +68,14 @@ fn parse_page_entry(line: &str) -> Result<PdfPageEntry, String> {
         .ok_or(format!("failed to parse page entry. line: {}", line))
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct Reference {
     id: String,
     source: ReferenceSourceInfo,
     entries: Vec<PdfPageEntry>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 enum ReferenceSourceInfo {
     Pdf {
         title: String,
@@ -167,7 +167,9 @@ fn build(path: PathBuf) -> Result<(), String> {
         })
     }
     let mut body_contents = vec!["<ul>".to_string()];
-    for ref_info in ref_list {
+    ref_list.sort();
+    for mut ref_info in ref_list {
+        ref_info.entries.sort();
         spec_file_add(
             &mut body_contents,
             &PdfEntry {
