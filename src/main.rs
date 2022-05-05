@@ -1,17 +1,12 @@
-struct SpecFileEntry {
-    id: &'static str,
+struct PdfEntry<'a> {
+    id: &'a str,
     title: String,
 }
-struct SpecFilePageEntry {
+struct PdfPageEntry<'a> {
     page: u64,
-    description: String,
+    description: &'a str,
 }
-
-fn spec_file_add(
-    body_contents: &mut Vec<String>,
-    e: &SpecFileEntry,
-    indexes: &[&SpecFilePageEntry],
-) {
+fn spec_file_add(body_contents: &mut Vec<String>, e: &PdfEntry, indexes: &[&PdfPageEntry]) {
     let id = e.id.to_string();
     let url = format!("./spec/{}.pdf", e.id.to_string().trim());
     let title = e.title.trim();
@@ -38,12 +33,11 @@ fn spec_file_add(
             .join("\n")
     ));
 }
-
 fn main() {
     let mut body_contents = vec!["<ul>".to_string()];
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "acpi_6_4",
             title: r##"
             Advanced Configuration and Power
@@ -55,7 +49,7 @@ Interface (ACPI) Specification
     );
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "armv8a_pg_1_0",
             title: r##"
 ARM Cortex-A Series Version: 1.0
@@ -63,14 +57,14 @@ Programmer’s Guide for ARMv8-A
         "##
             .to_string(),
         },
-        &[&SpecFilePageEntry {
+        &[&PdfPageEntry {
             page: 88,
-            description: "6.5.4 Hint instructions (WFI)".to_string(),
+            description: "6.5.4 Hint instructions (WFI)",
         }],
     );
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "cdc_1_2",
             title: r##"
 Universal Serial Bus
@@ -80,36 +74,35 @@ Communications Devices
             .to_string(),
         },
         &[
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 16,
-                description: "3.4.2 Data Class Interface".to_string(),
+                description: "3.4.2 Data Class Interface",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 20,
-                description: "02h: Communications Device Class Code".to_string(),
+                description: "02h: Communications Device Class Code",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 20,
-                description: "02h: Communications Interface Class Code".to_string(),
+                description: "02h: Communications Interface Class Code",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 20,
-                description: "06h: Ethernet Networking Control Model: Interface Subclass Code"
-                    .to_string(),
+                description: "06h: Ethernet Networking Control Model: Interface Subclass Code",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 21,
-                description: "0Ah: Data Interface Class".to_string(),
+                description: "0Ah: Data Interface Class",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 25,
-                description: "Table 12: Type Values for the bDescriptorType Field".to_string(),
+                description: "Table 12: Type Values for the bDescriptorType Field",
             },
         ],
     );
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "ecm_1_2",
             title: r##"
 Universal Serial Bus
@@ -123,7 +116,7 @@ Ethernet Control Model Devices Revision 1.2
     );
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "uefi_2_9",
             title: r##"
             Unified Extensible Firmware Interface (UEFI)
@@ -135,7 +128,7 @@ Specification
     );
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "usb_2_0",
             title: r##"
 Universal Serial Bus Specification Revision 2.0
@@ -143,43 +136,43 @@ Universal Serial Bus Specification Revision 2.0
             .to_string(),
         },
         &[
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 268,
-                description: "Figure 9-1. Device State Diagram".to_string(),
+                description: "Figure 9-1. Device State Diagram",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 278,
-                description: "9.4 Standard Device Requests".to_string(),
+                description: "9.4 Standard Device Requests",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 279,
-                description: "Table 9-4. Standard Request Codes".to_string(),
+                description: "Table 9-4. Standard Request Codes",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 279,
-                description: "Table 9-5. Descriptor Types".to_string(),
+                description: "Table 9-5. Descriptor Types",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 281,
-                description: "9.4.3 Get Descriptor Request".to_string(),
+                description: "9.4.3 Get Descriptor Request",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 282,
-                description: r##""All devices must provide a device descriptor and at least one configuration descriptor""##.to_string(),
+                description: r##""All devices must provide a device descriptor and at least one configuration descriptor""##,
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 297,
-                description: r##"9.6.6 Endpoint Descriptor"##.to_string(),
+                description: r##"9.6.6 Endpoint Descriptor"##,
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 301,
-                description: "9.6.7 String Descriptor".to_string(),
+                description: "9.6.7 String Descriptor",
             },
         ],
     );
     spec_file_add(
         &mut body_contents,
-        &SpecFileEntry {
+        &PdfEntry {
             id: "xhci_1_2",
             title: r##"
 eXtensible Host Controller Interface for Universal Serial Bus (xHCI)
@@ -189,53 +182,53 @@ May 2019 Revision 1.2
             .to_string(),
         },
         &[
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 57,
-                description: "Figure 3-3: General Architecture of the xHCI interface".to_string(),
+                description: "Figure 3-3: General Architecture of the xHCI interface",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 83,
-                description: "4.3 USB Device Initialization".to_string(),
+                description: "4.3 USB Device Initialization",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 91,
-                description: "4.3.6 Setting Alternate Interfaces".to_string(),
+                description: "4.3.6 Setting Alternate Interfaces",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 160,
-                description: "4.8 Endpoint".to_string(),
+                description: "4.8 Endpoint",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 161,
-                description: "4.8.2 Endpoint Context Initialization".to_string(),
+                description: "4.8.2 Endpoint Context Initialization",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 163,
-                description: "Figure 4-5: Endpoint State Diagram".to_string(),
+                description: "Figure 4-5: Endpoint State Diagram",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 370,
-                description: "Register Attributes".to_string(),
+                description: "Register Attributes",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 406,
-                description: "5.4.8 Port Status and Control Register (PORTSC)".to_string(),
+                description: "5.4.8 Port Status and Control Register (PORTSC)",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 454,
-                description: "6.2.3.2 Configure Endpoint Command Usage".to_string(),
+                description: "6.2.3.2 Configure Endpoint Command Usage",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 459,
-                description: "6.2.5 Input Context".to_string(),
+                description: "6.2.5 Input Context",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 461,
-                description: "6.2.5.1 Input Control Context".to_string(),
+                description: "6.2.5.1 Input Control Context",
             },
-            &SpecFilePageEntry {
+            &PdfPageEntry {
                 page: 491,
-                description: "6.4.3.5 Configure Endpoint Command TRB".to_string(),
+                description: "6.4.3.5 Configure Endpoint Command TRB",
             },
         ],
     );
