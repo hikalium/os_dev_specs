@@ -1,3 +1,13 @@
+#![feature(assert_matches)]
+extern crate notify;
+use notify::{watcher, RecursiveMode, Watcher};
+use regex::Regex;
+use std::path::PathBuf;
+use std::process;
+use std::slice::Iter;
+use std::sync::mpsc::channel;
+use std::time::Duration;
+
 struct PdfEntry<'a> {
     id: &'a str,
     title: String,
@@ -33,7 +43,120 @@ fn spec_file_add(body_contents: &mut Vec<String>, e: &PdfEntry, indexes: &[&PdfP
             .join("\n")
     ));
 }
+
+fn parse_id_line(line: &str) -> Result<String, String> {
+    let re = Regex::new(r"#\s*`([0-9a-z_]+)`").unwrap();
+    re.captures(line)
+        .map(|s| s.get(1).unwrap().as_str().to_string())
+        .ok_or(format!("failed to parse id line. line: {}", line))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::assert_matches::assert_matches;
+
+    use super::*;
+
+    #[test]
+    fn id_line() {
+        assert_eq!(parse_id_line("# id").as_deref(), Ok("id"));
+        assert_matches!(parse_id_line("#"), Err(_));
+        assert_matches!(parse_id_line("# "), Err(_));
+    }
+}
+
+#[derive(Debug)]
+enum ReferenceInfo {
+    Pdf { url: String },
+    Zip { url: String, rel_path: String },
+}
+
+fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceInfo, String> {
+    if it.next() != Some(&"```") {
+        return Err("Expected ``` after id".to_string());
+    }
+    let ref_type = it
+        .next()
+        .map(|s| s.trim())
+        .ok_or("type is needed in ref_info")?;
+    let ref_info = match ref_type {
+        "pdf" => ReferenceInfo::Pdf {
+            url: it
+                .next()
+                .map(|s| s.trim())
+                .ok_or("url is needed in ref_info".to_string())?
+                .to_string(),
+        },
+        "zip" => ReferenceInfo::Zip {
+            url: it
+                .next()
+                .map(|s| s.trim())
+                .ok_or("url is needed in ref_info".to_string())?
+                .to_string(),
+            rel_path: it
+                .next()
+                .map(|s| s.trim())
+                .ok_or("url is needed in ref_info".to_string())?
+                .to_string(),
+        },
+        s => return Err(format!("Unexpected ref_info type: {}", s)),
+    };
+    if it.next() != Some(&"```") {
+        return Err("Expected ``` after ref_info".to_string());
+    }
+    Ok(ref_info)
+}
+
+fn build(path: PathBuf) -> Result<(), String> {
+    println!("build from {:?}", path);
+    let input = std::fs::read_to_string(path).expect("Failed to read from file");
+    let input = input.trim();
+    let input: Vec<&str> = input
+        .split("\n")
+        .map(|s| s.trim())
+        .filter(|s| s.len() > 0)
+        .collect();
+    println!("build from {:?}", input);
+    let mut input = input.iter();
+    while let Some(id_line) = input.next() {
+        let id = parse_id_line(id_line)?;
+        println!("id: {:?}", id);
+        let ref_info = parse_reference(&mut input)?;
+        println!("ref: {:?}", ref_info);
+    }
+    Ok(())
+}
+
+fn watch_and_build(file_to_watch: String) -> Result<(), String> {
+    use notify::DebouncedEvent::*;
+    let (tx, rx) = channel();
+    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+    println!("File to watch: {}", &file_to_watch);
+    watcher
+        .watch(file_to_watch.clone(), RecursiveMode::NonRecursive)
+        .unwrap();
+    build(file_to_watch.into())?;
+    loop {
+        match rx.recv() {
+            Ok(event) => {
+                println!("{:?}", event);
+                match event {
+                    Create(path) => build(path)?,
+                    _ => {}
+                }
+            }
+            Err(e) => return Err(format!("watch error: {:?}", e)),
+        }
+    }
+}
 fn main() {
+    let mut args = std::env::args();
+    let file_to_watch = args.nth(1).expect("Usage: cargo run <file_to_watch>");
+    if let Err(e) = watch_and_build(file_to_watch) {
+        eprintln!("Error: {}", e);
+        process::exit(1);
+    };
+
     let mut body_contents = vec!["<ul>".to_string()];
     spec_file_add(
         &mut body_contents,

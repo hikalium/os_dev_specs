@@ -2,7 +2,7 @@
 
 default: download
 	cargo build
-	cargo run > index.html
+	cargo run -- `readlink -f data.md`
 
 .PHONY : download
 
