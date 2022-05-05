@@ -2,21 +2,23 @@
 extern crate notify;
 use notify::{watcher, RecursiveMode, Watcher};
 use regex::Regex;
+use std::io::Write;
 use std::path::PathBuf;
 use std::process;
 use std::slice::Iter;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 
-struct PdfEntry<'a> {
-    id: &'a str,
+struct PdfEntry {
+    id: String,
     title: String,
 }
-struct PdfPageEntry<'a> {
+#[derive(Debug, PartialEq)]
+struct PdfPageEntry {
     page: u64,
-    description: &'a str,
+    description: String,
 }
-fn spec_file_add(body_contents: &mut Vec<String>, e: &PdfEntry, indexes: &[&PdfPageEntry]) {
+fn spec_file_add(body_contents: &mut Vec<String>, e: &PdfEntry, indexes: &Vec<PdfPageEntry>) {
     let id = e.id.to_string();
     let url = format!("./spec/{}.pdf", e.id.to_string().trim());
     let title = e.title.trim();
@@ -51,43 +53,65 @@ fn parse_id_line(line: &str) -> Result<String, String> {
         .ok_or(format!("failed to parse id line. line: {}", line))
 }
 
-#[cfg(test)]
-mod tests {
-    use std::assert_matches::assert_matches;
-
-    use super::*;
-
-    #[test]
-    fn id_line() {
-        assert_eq!(parse_id_line("# id").as_deref(), Ok("id"));
-        assert_matches!(parse_id_line("#"), Err(_));
-        assert_matches!(parse_id_line("# "), Err(_));
-    }
+fn parse_page_entry(line: &str) -> Result<PdfPageEntry, String> {
+    let re = Regex::new(r"^-\s*p\.([0-9]+):(.*)$").unwrap();
+    re.captures(line)
+        .map(|c| PdfPageEntry {
+            page: c
+                .get(1)
+                .unwrap()
+                .as_str()
+                .parse::<u64>()
+                .expect("failed to parse page number"),
+            description: c.get(2).unwrap().as_str().trim().to_string(),
+        })
+        .ok_or(format!("failed to parse page entry. line: {}", line))
 }
 
 #[derive(Debug)]
-enum ReferenceInfo {
-    Pdf { url: String },
-    Zip { url: String, rel_path: String },
+struct Reference {
+    id: String,
+    source: ReferenceSourceInfo,
+    entries: Vec<PdfPageEntry>,
 }
 
-fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceInfo, String> {
+#[derive(Debug)]
+enum ReferenceSourceInfo {
+    Pdf {
+        title: String,
+        url: String,
+    },
+    Zip {
+        title: String,
+        url: String,
+        rel_path: String,
+    },
+}
+
+fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo, String> {
     if it.next() != Some(&"```") {
         return Err("Expected ``` after id".to_string());
     }
+    let title = it
+        .next()
+        .map(|s| s.trim())
+        .ok_or("title is needed in ref_info")?
+        .to_string();
     let ref_type = it
         .next()
         .map(|s| s.trim())
         .ok_or("type is needed in ref_info")?;
     let ref_info = match ref_type {
-        "pdf" => ReferenceInfo::Pdf {
+        "pdf" => ReferenceSourceInfo::Pdf {
+            title,
             url: it
                 .next()
                 .map(|s| s.trim())
                 .ok_or("url is needed in ref_info".to_string())?
                 .to_string(),
         },
-        "zip" => ReferenceInfo::Zip {
+        "zip" => ReferenceSourceInfo::Zip {
+            title,
             url: it
                 .next()
                 .map(|s| s.trim())
@@ -118,12 +142,76 @@ fn build(path: PathBuf) -> Result<(), String> {
         .collect();
     println!("build from {:?}", input);
     let mut input = input.iter();
-    while let Some(id_line) = input.next() {
+    let mut ref_list = Vec::new();
+    let mut maybe_id_line = input.next();
+    while let Some(id_line) = maybe_id_line {
         let id = parse_id_line(id_line)?;
         println!("id: {:?}", id);
-        let ref_info = parse_reference(&mut input)?;
-        println!("ref: {:?}", ref_info);
+        let source = parse_reference(&mut input)?;
+        println!("source: {:?}", source);
+        let mut page_list = Vec::new();
+        loop {
+            maybe_id_line = input.next();
+            if let Some(maybe_page_entry) = maybe_id_line {
+                if maybe_page_entry.starts_with("-") {
+                    page_list.push(parse_page_entry(maybe_page_entry)?);
+                    continue;
+                }
+            }
+            break;
+        }
+        ref_list.push(Reference {
+            id,
+            source,
+            entries: page_list,
+        })
     }
+    let mut body_contents = vec!["<ul>".to_string()];
+    for ref_info in ref_list {
+        spec_file_add(
+            &mut body_contents,
+            &PdfEntry {
+                id: ref_info.id.clone(),
+                title: match ref_info.source {
+                    ReferenceSourceInfo::Pdf { title, .. } => title,
+                    ReferenceSourceInfo::Zip { title, .. } => title,
+                },
+            },
+            &ref_info.entries,
+        );
+    }
+    body_contents.push(String::from("</ul>"));
+    let mut f = std::fs::File::create("index.html").unwrap();
+    let body_contents = body_contents.join("\n");
+    f.write_all(format!(
+        r##"
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <base target="_blank">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&amp;display=swap" rel="stylesheet">
+  <style>
+body {{
+    font-family: 'Source Code Pro', monospace;
+}}
+a {{
+    color: #1d68cd;
+    text-decoration: none;
+}}
+.spec {{
+    margin-top: 16px;
+}}
+.spec-link {{
+    font-size: large;
+}}
+</style>
+</head>
+<body>
+  <h1>os_dev_specs</h1>
+  {}
+</body>"##,
+        body_contents,
+    ).as_bytes()).unwrap();
     Ok(())
 }
 
@@ -156,234 +244,34 @@ fn main() {
         eprintln!("Error: {}", e);
         process::exit(1);
     };
+}
 
-    let mut body_contents = vec!["<ul>".to_string()];
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "acpi_6_4",
-            title: r##"
-            Advanced Configuration and Power
-Interface (ACPI) Specification
-        "##
-            .to_string(),
-        },
-        &[],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "armv8a_pg_1_0",
-            title: r##"
-ARM Cortex-A Series Version: 1.0
-Programmer’s Guide for ARMv8-A
-        "##
-            .to_string(),
-        },
-        &[&PdfPageEntry {
-            page: 88,
-            description: "6.5.4 Hint instructions (WFI)",
-        }],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "cdc_1_2",
-            title: r##"
-Universal Serial Bus
-Class Definitions for
-Communications Devices
-        "##
-            .to_string(),
-        },
-        &[
-            &PdfPageEntry {
-                page: 16,
-                description: "3.4.2 Data Class Interface",
-            },
-            &PdfPageEntry {
-                page: 20,
-                description: "02h: Communications Device Class Code",
-            },
-            &PdfPageEntry {
-                page: 20,
-                description: "02h: Communications Interface Class Code",
-            },
-            &PdfPageEntry {
-                page: 20,
-                description: "06h: Ethernet Networking Control Model: Interface Subclass Code",
-            },
-            &PdfPageEntry {
-                page: 21,
-                description: "0Ah: Data Interface Class",
-            },
-            &PdfPageEntry {
-                page: 25,
-                description: "Table 12: Type Values for the bDescriptorType Field",
-            },
-        ],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "ecm_1_2",
-            title: r##"
-Universal Serial Bus
-Communications Class
-Subclass Specification for
-Ethernet Control Model Devices Revision 1.2
-        "##
-            .to_string(),
-        },
-        &[],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "uefi_2_9",
-            title: r##"
-            Unified Extensible Firmware Interface (UEFI)
-Specification
-        "##
-            .to_string(),
-        },
-        &[],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "usb_2_0",
-            title: r##"
-Universal Serial Bus Specification Revision 2.0
-        "##
-            .to_string(),
-        },
-        &[
-            &PdfPageEntry {
+#[cfg(test)]
+mod tests {
+    use std::assert_matches::assert_matches;
+
+    use super::*;
+
+    #[test]
+    fn id_line() {
+        assert_eq!(parse_id_line("# `id`").as_deref(), Ok("id"));
+        assert_matches!(parse_id_line("#"), Err(_));
+        assert_matches!(parse_id_line("# "), Err(_));
+        assert_matches!(parse_id_line("# ``"), Err(_));
+        assert_matches!(parse_id_line("`id`"), Err(_));
+    }
+    #[test]
+    fn page_line() {
+        assert_eq!(
+            parse_page_entry("- p.268: page1"),
+            Ok(PdfPageEntry {
                 page: 268,
-                description: "Figure 9-1. Device State Diagram",
-            },
-            &PdfPageEntry {
-                page: 278,
-                description: "9.4 Standard Device Requests",
-            },
-            &PdfPageEntry {
-                page: 279,
-                description: "Table 9-4. Standard Request Codes",
-            },
-            &PdfPageEntry {
-                page: 279,
-                description: "Table 9-5. Descriptor Types",
-            },
-            &PdfPageEntry {
-                page: 281,
-                description: "9.4.3 Get Descriptor Request",
-            },
-            &PdfPageEntry {
-                page: 282,
-                description: r##""All devices must provide a device descriptor and at least one configuration descriptor""##,
-            },
-            &PdfPageEntry {
-                page: 297,
-                description: r##"9.6.6 Endpoint Descriptor"##,
-            },
-            &PdfPageEntry {
-                page: 301,
-                description: "9.6.7 String Descriptor",
-            },
-        ],
-    );
-    spec_file_add(
-        &mut body_contents,
-        &PdfEntry {
-            id: "xhci_1_2",
-            title: r##"
-eXtensible Host Controller Interface for Universal Serial Bus (xHCI)
-Requirements Specification
-May 2019 Revision 1.2
-        "##
-            .to_string(),
-        },
-        &[
-            &PdfPageEntry {
-                page: 57,
-                description: "Figure 3-3: General Architecture of the xHCI interface",
-            },
-            &PdfPageEntry {
-                page: 83,
-                description: "4.3 USB Device Initialization",
-            },
-            &PdfPageEntry {
-                page: 91,
-                description: "4.3.6 Setting Alternate Interfaces",
-            },
-            &PdfPageEntry {
-                page: 160,
-                description: "4.8 Endpoint",
-            },
-            &PdfPageEntry {
-                page: 161,
-                description: "4.8.2 Endpoint Context Initialization",
-            },
-            &PdfPageEntry {
-                page: 163,
-                description: "Figure 4-5: Endpoint State Diagram",
-            },
-            &PdfPageEntry {
-                page: 370,
-                description: "Register Attributes",
-            },
-            &PdfPageEntry {
-                page: 406,
-                description: "5.4.8 Port Status and Control Register (PORTSC)",
-            },
-            &PdfPageEntry {
-                page: 454,
-                description: "6.2.3.2 Configure Endpoint Command Usage",
-            },
-            &PdfPageEntry {
-                page: 459,
-                description: "6.2.5 Input Context",
-            },
-            &PdfPageEntry {
-                page: 461,
-                description: "6.2.5.1 Input Control Context",
-            },
-            &PdfPageEntry {
-                page: 491,
-                description: "6.4.3.5 Configure Endpoint Command TRB",
-            },
-        ],
-    );
-    body_contents.push(String::from("</ul>"));
-    let body_contents = body_contents.join("\n");
-    println!(
-        r##"
-<!DOCTYPE html>
-<head>
-  <meta charset="utf-8">
-  <base target="_blank">
-  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&amp;display=swap" rel="stylesheet">
-  <style>
-body {{
-    font-family: 'Source Code Pro', monospace;
-}}
-a {{
-    color: #1d68cd;
-    text-decoration: none;
-}}
-.spec {{
-    margin-top: 16px;
-}}
-.spec-link {{
-    font-size: large;
-}}
-</style>
-</head>
-<body>
-  <h1>os_dev_specs</h1>
-  {}
-</body>"##,
-        body_contents,
-    );
+                description: "page1".to_string()
+            })
+        );
+        assert_matches!(parse_id_line("#"), Err(_));
+        assert_matches!(parse_id_line("# "), Err(_));
+        assert_matches!(parse_id_line("# ``"), Err(_));
+        assert_matches!(parse_id_line("`id`"), Err(_));
+    }
 }
