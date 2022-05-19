@@ -10,4 +10,4 @@ run :
 	cargo run -- `readlink -f data.md`
 
 watch :
-	cargo run -- `readlink -f data.md`
+	cargo run -- --watch `readlink -f data.md`

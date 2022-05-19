@@ -5,12 +5,17 @@ pdf
 sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671436
 ```
 
+- p.161: 6.5.1 Call and Return Operation for Interrupt or Exception Handling Procedures
+- p.167: 6.5.6 Interrupt and Exception Behavior in 64-Bit Mode
+
 # `sdm_vol2`
 ```
 Intel SDM Vol.2
 pdf
 sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671110
 ```
+- p.1403: SYSCALL
+- p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS
 
 # `sdm_vol3`
 ```
@@ -19,12 +24,24 @@ pdf
 sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671447
 ```
 
+- p.67: 2.2 MODES OF OPERATION
+- p.69: 2.2.1 Extended Feature Enable Register
+- p.70: 2.3 SYSTEM FLAGS AND FIELDS IN THE EFLAGS REGISTER
+- p.139: 4.7 PAGE-FAULT EXCEPTIONS
+- p.180: 5.8.8 Fast System Calls in 64-Bit Mode
+- p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET
+- p.416: 10.12.1 Detecting and Enabling x2APIC Mode
+- p.660: 17.17.1 Invariant TSC
+
 # `sdm_vol4`
 ```
 Intel SDM Vol.4
 pdf
 sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671098
 ```
+
+- p.20: `IA32_TIME_STAMP_COUNTER`
+- p.22: `IA32_TSC_ADJUST`
 
 # `armv8a_pg_1_0`
 ```
