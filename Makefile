@@ -8,7 +8,6 @@ download:
 
 run :
 	cargo run -- `readlink -f data.md`
-	open index.html
 
 watch :
 	cargo run -- `readlink -f data.md`

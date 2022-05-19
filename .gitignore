@@ -2,3 +2,4 @@
 /spec/*.pdf
 /spec_tmp
 /download
+*.generated.*

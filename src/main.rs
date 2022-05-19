@@ -143,6 +143,27 @@ fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo, String> {
     Ok(ref_info)
 }
 
+fn build_download_script(ref_list: &Vec<Reference>) {
+    println!("Generating download script...");
+    let mut cmds = Vec::new();
+    for ref_info in ref_list {
+        let id = &ref_info.id;
+        let src_info = &ref_info.source;
+        match src_info {
+            ReferenceSourceInfo::Pdf { url, .. } => {
+                cmds.push(format!("def_spec_pdf {} {}", id, url));
+            }
+            ReferenceSourceInfo::Zip { url, rel_path, .. } => {
+                cmds.push(format!("def_spec_zip {} {} {}", id, url, rel_path));
+            }
+        }
+    }
+    let cmds = cmds.join("\n");
+    println!("{}", cmds);
+    let mut f = std::fs::File::create("download_entries.generated.sh").unwrap();
+    f.write_all(cmds.as_bytes()).unwrap();
+}
+
 fn build(path: PathBuf) -> Result<(), String> {
     println!("build from {:?}", path);
     let input = std::fs::read_to_string(path).expect("Failed to read from file");
@@ -152,15 +173,13 @@ fn build(path: PathBuf) -> Result<(), String> {
         .map(|s| s.trim())
         .filter(|s| s.len() > 0)
         .collect();
-    println!("build from {:?}", input);
     let mut input = input.iter();
     let mut ref_list = Vec::new();
     let mut maybe_id_line = input.next();
     while let Some(id_line) = maybe_id_line {
         let id = parse_id_line(id_line)?;
-        println!("id: {:?}", id);
+        println!("Parsing id: {:?}", id);
         let source = parse_reference(&mut input)?;
-        println!("source: {:?}", source);
         let mut page_list = Vec::new();
         loop {
             maybe_id_line = input.next();
@@ -180,6 +199,9 @@ fn build(path: PathBuf) -> Result<(), String> {
     }
     let mut body_contents = vec!["<ul>".to_string()];
     ref_list.sort();
+
+    build_download_script(&ref_list);
+
     for mut ref_info in ref_list {
         ref_info.entries.sort();
         spec_file_add(

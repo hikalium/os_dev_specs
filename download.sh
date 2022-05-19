@@ -64,15 +64,4 @@ function deploy_spec {
 	cp -rv ${TMP_SPEC_DIR}/* ${SPEC_DIR}
 }
 
-def_spec_pdf sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671436
-def_spec_pdf sdm_vol2 https://cdrdv2.intel.com/v1/dl/getContent/671110
-def_spec_pdf sdm_vol3 https://cdrdv2.intel.com/v1/dl/getContent/671447
-def_spec_pdf sdm_vol4 https://cdrdv2.intel.com/v1/dl/getContent/671098
-def_spec_pdf uefi_2_9 https://uefi.org/sites/default/files/resources/UEFI_Spec_2_9_2021_03_18.pdf
-def_spec_pdf acpi_6_4 https://uefi.org/sites/default/files/resources/ACPI_Spec_6_4_Jan22.pdf
-def_spec_pdf xhci_1_2 https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
-def_spec_pdf armv8a_pg_1_0 https://documentation-service.arm.com/static/5fbd26f271eff94ef49c7020
-def_spec_zip usb_2_0 https://www.usb.org/sites/default/files/usb_20_20190524.zip usb_20_20190524/usb_20.pdf
-def_spec_zip cdc_1_2 https://www.usb.org/sites/default/files/CDC1.2_WMC1.1_012011.zip CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
-def_spec_zip ecm_1_2 https://www.usb.org/sites/default/files/CDC1.2_WMC1.1_012011.zip CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
-deploy_spec
+. download_entries.generated.sh

@@ -1,3 +1,31 @@
+# `sdm_vol1`
+```
+Intel SDM Vol.1
+pdf
+sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671436
+```
+
+# `sdm_vol2`
+```
+Intel SDM Vol.2
+pdf
+sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671110
+```
+
+# `sdm_vol3`
+```
+Intel SDM Vol.3
+pdf
+sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671447
+```
+
+# `sdm_vol4`
+```
+Intel SDM Vol.4
+pdf
+sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671098
+```
+
 # `armv8a_pg_1_0`
 ```
 ARM Cortex-A Series Version: 1.0 Programmer’s Guide for ARMv8-A
