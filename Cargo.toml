@@ -7,3 +7,5 @@ edition = "2018"
 [dependencies]
 notify = "4.0.17"
 regex = "1"
+clap = { version = "3.1.18", features = ["derive"] }
+

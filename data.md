@@ -15,10 +15,15 @@ https://uefi.org/sites/default/files/resources/ACPI_Spec_6_4_Jan22.pdf
 
 # `uefi_2_9`
 ```
-ARM Cortex-A Series Version: 1.0 Programmer’s Guide for ARMv8-A
+Unified Extensible Firmware Interface (UEFI) Specification
 pdf
 https://uefi.org/sites/default/files/resources/UEFI_Spec_2_9_2021_03_18.pdf
 ```
+
+- p.586: `EFI_SIMPLE_FILE SYSTEM_PROTOCOL.OpenVolume()`
+- p.588: `typedef struct _EFI_FILE_PROTOCOL`
+- p.589: `EFI_FILE_PROTOCOL.Open()`
+- p.605: `EFI_FILE_INFO`
 
 # `xhci_1_2`
 ```

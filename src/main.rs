@@ -1,13 +1,25 @@
 #![feature(assert_matches)]
 extern crate notify;
-use notify::{watcher, RecursiveMode, Watcher};
+use clap::Parser;
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use regex::Regex;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process;
 use std::slice::Iter;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Receiver};
 use std::time::Duration;
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// Path to data.md
+    data_path: String,
+
+    /// Monitor updates and rebuild
+    #[clap(short, long)]
+    watch: bool,
+}
 
 struct PdfEntry {
     id: String,
@@ -217,15 +229,8 @@ a {{
     Ok(())
 }
 
-fn watch_and_build(file_to_watch: String) -> Result<(), String> {
+fn watch_and_build(rx: Receiver<DebouncedEvent>) -> Result<(), String> {
     use notify::DebouncedEvent::*;
-    let (tx, rx) = channel();
-    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-    println!("File to watch: {}", &file_to_watch);
-    watcher
-        .watch(file_to_watch.clone(), RecursiveMode::NonRecursive)
-        .unwrap();
-    build(file_to_watch.into())?;
     loop {
         match rx.recv() {
             Ok(event) => {
@@ -240,9 +245,23 @@ fn watch_and_build(file_to_watch: String) -> Result<(), String> {
     }
 }
 fn main() {
-    let mut args = std::env::args();
-    let file_to_watch = args.nth(1).expect("Usage: cargo run <file_to_watch>");
-    if let Err(e) = watch_and_build(file_to_watch) {
+    let args = Args::parse();
+    let file_to_watch = args.data_path;
+    let do_watch = args.watch;
+
+    let (tx, rx) = channel();
+    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+    println!("File to watch: {}", &file_to_watch);
+    watcher
+        .watch(file_to_watch.clone(), RecursiveMode::NonRecursive)
+        .unwrap();
+    if let Err(e) = || -> Result<(), String> {
+        build(file_to_watch.into())?;
+        if do_watch {
+            watch_and_build(rx)?;
+        }
+        Ok(())
+    }() {
         eprintln!("Error: {}", e);
         process::exit(1);
     };

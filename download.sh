@@ -64,6 +64,10 @@ function deploy_spec {
 	cp -rv ${TMP_SPEC_DIR}/* ${SPEC_DIR}
 }
 
+def_spec_pdf sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671436
+def_spec_pdf sdm_vol2 https://cdrdv2.intel.com/v1/dl/getContent/671110
+def_spec_pdf sdm_vol3 https://cdrdv2.intel.com/v1/dl/getContent/671447
+def_spec_pdf sdm_vol4 https://cdrdv2.intel.com/v1/dl/getContent/671098
 def_spec_pdf uefi_2_9 https://uefi.org/sites/default/files/resources/UEFI_Spec_2_9_2021_03_18.pdf
 def_spec_pdf acpi_6_4 https://uefi.org/sites/default/files/resources/ACPI_Spec_6_4_Jan22.pdf
 def_spec_pdf xhci_1_2 https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf

@@ -1,13 +1,14 @@
-
-
-default: download
+default:
 	cargo build
-	cargo run -- `readlink -f data.md`
 
-.PHONY : download
+.PHONY : default download run watch
 
 download:
 	./download.sh
 
-run : default
+run :
+	cargo run -- `readlink -f data.md`
 	open index.html
+
+watch :
+	cargo run -- `readlink -f data.md`
