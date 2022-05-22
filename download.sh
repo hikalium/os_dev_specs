@@ -65,3 +65,4 @@ function deploy_spec {
 }
 
 . download_entries.generated.sh
+deploy_spec
