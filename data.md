@@ -1,8 +1,15 @@
+# `usb_type_c`
+```
+Universal Serial Bus Type-C Cable and Connector Specification
+pdf
+https://www.usb.org/sites/default/files/USB%20Type-C%20Spec%20R2.0%20-%20August%202019.pdf
+```
+
 # `sdm_vol1`
 ```
 Intel SDM Vol.1
 pdf
-sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671436
+https://cdrdv2.intel.com/v1/dl/getContent/671436
 ```
 
 - p.161: 6.5.1 Call and Return Operation for Interrupt or Exception Handling Procedures
@@ -12,7 +19,7 @@ sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671436
 ```
 Intel SDM Vol.2
 pdf
-sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671110
+https://cdrdv2.intel.com/v1/dl/getContent/671110
 ```
 - p.1403: SYSCALL
 - p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS
@@ -21,7 +28,7 @@ sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671110
 ```
 Intel SDM Vol.3
 pdf
-sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671447
+https://cdrdv2.intel.com/v1/dl/getContent/671447
 ```
 
 - p.67: 2.2 MODES OF OPERATION
@@ -37,7 +44,7 @@ sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671447
 ```
 Intel SDM Vol.4
 pdf
-sdm_vol1 https://cdrdv2.intel.com/v1/dl/getContent/671098
+https://cdrdv2.intel.com/v1/dl/getContent/671098
 ```
 
 - p.20: `IA32_TIME_STAMP_COUNTER`
