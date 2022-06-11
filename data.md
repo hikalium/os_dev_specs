@@ -5,6 +5,33 @@ pdf
 https://www.usb.org/sites/default/files/USB%20Type-C%20Spec%20R2.0%20-%20August%202019.pdf
 ```
 
+# `rtl8139d`
+```
+RTL8139D DataSheet
+pdf
+https://www.cs.usfca.edu/~cruse/cs326f04/RTL8139D_DataSheet.pdf
+```
+- p.10: Register Descriptions
+
+# `rtl8139pg`
+```
+RTL8139 Programming guide
+pdf
+https://www.cs.usfca.edu/~cruse/cs326f04/RTL8139_ProgrammersGuide.pdf
+```
+- p.2: Transmission process
+- p.6: Receive process
+
+# `pci_20`
+```
+PCI Local Bus Specification
+pdf
+https://www.cl.cam.ac.uk/~djm202/pdf/specifications/pcie/PCI_Express_Base_Rev_2.0_20Dec06a.pdf
+```
+- p.415: Figure 7-3: PCI Express Configuration Space Layout
+- p.416: 7.2.2. PCI Express Enhanced Configuration Access Mechanism (ECAM)
+- p.426: 7.5.1. Type 0/1 Common Configuration Space
+
 # `sdm_vol1`
 ```
 Intel SDM Vol.1
@@ -21,7 +48,9 @@ Intel SDM Vol.2
 pdf
 https://cdrdv2.intel.com/v1/dl/getContent/671110
 ```
+- p.319: CPUID list
 - p.1403: SYSCALL
+- p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS
 - p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS
 
 # `sdm_vol3`
@@ -37,6 +66,7 @@ https://cdrdv2.intel.com/v1/dl/getContent/671447
 - p.139: 4.7 PAGE-FAULT EXCEPTIONS
 - p.180: 5.8.8 Fast System Calls in 64-Bit Mode
 - p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET
+- p.387: `IA32_APIC_BASE MSR`
 - p.416: 10.12.1 Detecting and Enabling x2APIC Mode
 - p.660: 17.17.1 Invariant TSC
 
@@ -47,6 +77,7 @@ pdf
 https://cdrdv2.intel.com/v1/dl/getContent/671098
 ```
 
+- p.20: `IA32_APIC_BASE`
 - p.20: `IA32_TIME_STAMP_COUNTER`
 - p.22: `IA32_TSC_ADJUST`
 
@@ -65,6 +96,10 @@ pdf
 https://uefi.org/sites/default/files/resources/ACPI_Spec_6_4_Jan22.pdf
 ```
 
+- p.166: `System Description Table Header`
+- p.167: `DESCRIPTION HEADER SIGNATURES`
+- p.402: `6.2.10 _MAT (Multiple APIC Table Entry)`
+
 # `uefi_2_9`
 ```
 Unified Extensible Firmware Interface (UEFI) Specification
@@ -72,6 +107,8 @@ pdf
 https://uefi.org/sites/default/files/resources/UEFI_Spec_2_9_2021_03_18.pdf
 ```
 
+- p.169: `EFI_SYSTEM_TABLE`
+- p.177: `EFI_CONFIGURATION_TABLE`
 - p.586: `EFI_SIMPLE_FILE SYSTEM_PROTOCOL.OpenVolume()`
 - p.588: `typedef struct _EFI_FILE_PROTOCOL`
 - p.589: `EFI_FILE_PROTOCOL.Open()`
