@@ -1,3 +1,12 @@
+# `ich9`
+```
+Intel I/O Controller Hub 9 (ICH9) Family
+pdf
+https://www.intel.com/content/dam/doc/datasheet/io-controller-hub-9-datasheet.pdf
+```
+
+- p.474: APIC Registers
+
 # `usb_type_c`
 ```
 Universal Serial Bus Type-C Cable and Connector Specification
@@ -12,6 +21,7 @@ pdf
 https://www.cs.usfca.edu/~cruse/cs326f04/RTL8139D_DataSheet.pdf
 ```
 - p.10: Register Descriptions
+- p.12: 5.1 Receive Status Register in Rx packet header
 
 # `rtl8139pg`
 ```
