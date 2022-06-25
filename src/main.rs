@@ -20,20 +20,34 @@ struct Args {
     #[clap(short, long)]
     watch: bool,
 }
-
-struct PdfEntry {
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
+struct Reference {
     id: String,
-    title: String,
+    source: ReferenceSourceInfo,
+    entries: Vec<PdfPageEntry>,
 }
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct PdfPageEntry {
     page: u64,
     description: String,
 }
-fn spec_file_add(body_contents: &mut Vec<String>, e: &PdfEntry, indexes: &Vec<PdfPageEntry>) {
-    let id = e.id.to_string();
-    let url = format!("./spec/{}.pdf", e.id.to_string().trim());
-    let title = e.title.trim();
+#[derive(Clone, Copy)]
+enum IndexHtmlVariant {
+    Local,
+    Public,
+}
+
+fn spec_file_add(
+    body_contents: &mut Vec<String>,
+    ref_info: &Reference,
+    _variant: IndexHtmlVariant,
+) {
+    let id = &ref_info.id;
+    let url = format!("./spec/{}.pdf", id.trim());
+    let title = match &ref_info.source {
+        ReferenceSourceInfo::Pdf { title, .. } => title.clone(),
+        ReferenceSourceInfo::Zip { title, .. } => title.clone(),
+    };
     body_contents.push(format!(
         r##"
 <li class="spec">
@@ -46,7 +60,8 @@ fn spec_file_add(body_contents: &mut Vec<String>, e: &PdfEntry, indexes: &Vec<Pd
 </ul>
 </li>
 "##,
-        indexes
+        ref_info
+            .entries
             .iter()
             .map(|p| {
                 let page = p.page;
@@ -78,13 +93,6 @@ fn parse_page_entry(line: &str) -> Result<PdfPageEntry, String> {
             description: c.get(2).unwrap().as_str().trim().to_string(),
         })
         .ok_or(format!("failed to parse page entry. line: {}", line))
-}
-
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
-struct Reference {
-    id: String,
-    source: ReferenceSourceInfo,
-    entries: Vec<PdfPageEntry>,
 }
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
@@ -194,25 +202,11 @@ fn gen_download_script(ref_list: &Vec<Reference>) {
     f.write_all(cmds.as_bytes()).unwrap();
 }
 
-enum IndexHtmlVariant {
-    Local,
-    Public,
-}
 fn gen_html(ref_list: &Vec<Reference>, dst_path: &str, variant: IndexHtmlVariant) {
     println!("Generating {dst_path}...");
     let mut body_contents = vec!["<ul>".to_string()];
     for ref_info in ref_list {
-        spec_file_add(
-            &mut body_contents,
-            &PdfEntry {
-                id: ref_info.id.clone(),
-                title: match &ref_info.source {
-                    ReferenceSourceInfo::Pdf { title, .. } => title.clone(),
-                    ReferenceSourceInfo::Zip { title, .. } => title.clone(),
-                },
-            },
-            &ref_info.entries,
-        );
+        spec_file_add(&mut body_contents, &ref_info, variant);
     }
     body_contents.push(String::from("</ul>"));
     let mut f = std::fs::File::create(dst_path).unwrap();
