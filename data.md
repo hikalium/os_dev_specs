@@ -6,6 +6,7 @@ https://www.intel.com/content/dam/doc/datasheet/io-controller-hub-9-datasheet.pd
 ```
 
 - p.474: APIC Registers
+- p.477: Redirection Table
 
 # `usb_type_c`
 ```
