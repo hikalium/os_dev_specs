@@ -194,7 +194,12 @@ fn gen_download_script(ref_list: &Vec<Reference>) {
     f.write_all(cmds.as_bytes()).unwrap();
 }
 
-fn gen_html(ref_list: &Vec<Reference>) {
+enum IndexHtmlVariant {
+    Local,
+    Public,
+}
+fn gen_html(ref_list: &Vec<Reference>, dst_path: &str, variant: IndexHtmlVariant) {
+    println!("Generating {dst_path}...");
     let mut body_contents = vec!["<ul>".to_string()];
     for ref_info in ref_list {
         spec_file_add(
@@ -210,7 +215,7 @@ fn gen_html(ref_list: &Vec<Reference>) {
         );
     }
     body_contents.push(String::from("</ul>"));
-    let mut f = std::fs::File::create("index.html").unwrap();
+    let mut f = std::fs::File::create(dst_path).unwrap();
     let body_contents = body_contents.join("\n");
     f.write_all(format!(
         r##"
@@ -321,7 +326,8 @@ fn build(path: PathBuf) -> Result<(), String> {
         ref_info.entries.sort();
     }
 
-    gen_html(&ref_list);
+    gen_html(&ref_list, "index.html", IndexHtmlVariant::Local);
+    gen_html(&ref_list, "public/index.html", IndexHtmlVariant::Public);
     gen_download_script(&ref_list);
     update_data_md(&ref_list);
 
