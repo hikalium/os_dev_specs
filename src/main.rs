@@ -100,6 +100,36 @@ enum ReferenceSourceInfo {
     },
 }
 
+impl ReferenceSourceInfo {
+    fn gen_header(&self) -> String {
+        match self {
+            ReferenceSourceInfo::Pdf { title, url } => format!(
+                "
+```
+{title}
+pdf
+{url}
+```
+"
+            ),
+            ReferenceSourceInfo::Zip {
+                title,
+                url,
+                rel_path,
+            } => format!(
+                "
+```
+{title}
+zip
+{url}
+{rel_path}
+```
+"
+            ),
+        }
+    }
+}
+
 fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo, String> {
     if it.next() != Some(&"```") {
         return Err("Expected ``` after id".to_string());
@@ -143,7 +173,7 @@ fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo, String> {
     Ok(ref_info)
 }
 
-fn build_download_script(ref_list: &Vec<Reference>) {
+fn gen_download_script(ref_list: &Vec<Reference>) {
     println!("Generating download script...");
     let mut cmds = Vec::new();
     for ref_info in ref_list {
@@ -213,6 +243,46 @@ a {{
     ).as_bytes()).unwrap();
 }
 
+fn gen_data_md_entry(
+    body_contents: &mut Vec<String>,
+    id: &String,
+    source: &ReferenceSourceInfo,
+    indexes: &Vec<PdfPageEntry>,
+) {
+    body_contents.push(format!(
+        r##"
+# `{}`
+{}
+{}
+"##,
+        id,
+        source.gen_header(),
+        indexes
+            .iter()
+            .map(|p| {
+                let page = p.page;
+                let description = &p.description;
+                format!(r##"- p.{page}: {description}"##,)
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
+    ));
+}
+fn update_data_md(ref_list: &Vec<Reference>) {
+    let mut body_contents = vec![];
+    for ref_info in ref_list {
+        gen_data_md_entry(
+            &mut body_contents,
+            &ref_info.id,
+            &ref_info.source,
+            &ref_info.entries,
+        );
+    }
+    let mut f = std::fs::File::create("data.md").unwrap();
+    let body_contents = body_contents.join("\n");
+    f.write_all(body_contents.as_bytes()).unwrap();
+}
+
 fn build(path: PathBuf) -> Result<(), String> {
     println!("build from {:?}", path);
     let input = std::fs::read_to_string(path).expect("Failed to read from file");
@@ -252,7 +322,8 @@ fn build(path: PathBuf) -> Result<(), String> {
     }
 
     gen_html(&ref_list);
-    build_download_script(&ref_list);
+    gen_download_script(&ref_list);
+    update_data_md(&ref_list);
 
     Ok(())
 }
