@@ -164,53 +164,16 @@ fn build_download_script(ref_list: &Vec<Reference>) {
     f.write_all(cmds.as_bytes()).unwrap();
 }
 
-fn build(path: PathBuf) -> Result<(), String> {
-    println!("build from {:?}", path);
-    let input = std::fs::read_to_string(path).expect("Failed to read from file");
-    let input = input.trim();
-    let input: Vec<&str> = input
-        .split("\n")
-        .map(|s| s.trim())
-        .filter(|s| s.len() > 0)
-        .collect();
-    let mut input = input.iter();
-    let mut ref_list = Vec::new();
-    let mut maybe_id_line = input.next();
-    while let Some(id_line) = maybe_id_line {
-        let id = parse_id_line(id_line)?;
-        println!("Parsing id: {:?}", id);
-        let source = parse_reference(&mut input)?;
-        let mut page_list = Vec::new();
-        loop {
-            maybe_id_line = input.next();
-            if let Some(maybe_page_entry) = maybe_id_line {
-                if maybe_page_entry.starts_with("-") {
-                    page_list.push(parse_page_entry(maybe_page_entry)?);
-                    continue;
-                }
-            }
-            break;
-        }
-        ref_list.push(Reference {
-            id,
-            source,
-            entries: page_list,
-        })
-    }
+fn gen_html(ref_list: &Vec<Reference>) {
     let mut body_contents = vec!["<ul>".to_string()];
-    ref_list.sort();
-
-    build_download_script(&ref_list);
-
-    for mut ref_info in ref_list {
-        ref_info.entries.sort();
+    for ref_info in ref_list {
         spec_file_add(
             &mut body_contents,
             &PdfEntry {
                 id: ref_info.id.clone(),
-                title: match ref_info.source {
-                    ReferenceSourceInfo::Pdf { title, .. } => title,
-                    ReferenceSourceInfo::Zip { title, .. } => title,
+                title: match &ref_info.source {
+                    ReferenceSourceInfo::Pdf { title, .. } => title.clone(),
+                    ReferenceSourceInfo::Zip { title, .. } => title.clone(),
                 },
             },
             &ref_info.entries,
@@ -248,6 +211,49 @@ a {{
 </body>"##,
         body_contents,
     ).as_bytes()).unwrap();
+}
+
+fn build(path: PathBuf) -> Result<(), String> {
+    println!("build from {:?}", path);
+    let input = std::fs::read_to_string(path).expect("Failed to read from file");
+    let input = input.trim();
+    let input: Vec<&str> = input
+        .split("\n")
+        .map(|s| s.trim())
+        .filter(|s| s.len() > 0)
+        .collect();
+    let mut input = input.iter();
+    let mut ref_list = Vec::new();
+    let mut maybe_id_line = input.next();
+    while let Some(id_line) = maybe_id_line {
+        let id = parse_id_line(id_line)?;
+        println!("Parsing id: {:?}", id);
+        let source = parse_reference(&mut input)?;
+        let mut page_list = Vec::new();
+        loop {
+            maybe_id_line = input.next();
+            if let Some(maybe_page_entry) = maybe_id_line {
+                if maybe_page_entry.starts_with("-") {
+                    page_list.push(parse_page_entry(maybe_page_entry)?);
+                    continue;
+                }
+            }
+            break;
+        }
+        ref_list.push(Reference {
+            id,
+            source,
+            entries: page_list,
+        })
+    }
+    ref_list.sort();
+    for ref_info in &mut ref_list {
+        ref_info.entries.sort();
+    }
+
+    gen_html(&ref_list);
+    build_download_script(&ref_list);
+
     Ok(())
 }
 
