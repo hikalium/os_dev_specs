@@ -321,7 +321,7 @@ fn build(path: PathBuf) -> Result<(), String> {
     }
 
     gen_html(&ref_list, "index.html", IndexHtmlVariant::Local);
-    gen_html(&ref_list, "public/index.html", IndexHtmlVariant::Public);
+    gen_html(&ref_list, "docs/index.html", IndexHtmlVariant::Public);
     gen_download_script(&ref_list);
     update_data_md(&ref_list);
 
