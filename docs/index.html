@@ -8,13 +8,31 @@
 body {
     font-family: 'Source Code Pro', monospace;
 }
+div {
+    margin-left: 64px;
+}
 a {
     color: #1d68cd;
     text-decoration: none;
 }
+p {
+    margin-bottom: 32px;
+}
+h3 {
+    border-top: 1px solid #9dc0f0;
+    border-left: 4px solid #9dc0f0;
+    padding: 8px;
+    margin-top: 32px;
+    margin-bottom: 8px;
+}
 small {
     color: #888888;
     text-decoration: none;
+}
+ul {
+    list-style-type: none;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 .spec {
     margin-top: 16px;
@@ -26,230 +44,325 @@ small {
 </head>
 <body>
   <h1>os_dev_specs <small>(Public)</small></h1>
-  <ul>
+  <p>source: <a href="https://github.com/hikalium/os_dev_specs">hikalium/os_dev_specs</a></p>
+  
 
-<li class="spec">
-<a href="./spec/acpi_6_4.pdf" class="spec-link">
+<h3>
   [acpi_6_4]
   Advanced Configuration and Power Interface (ACPI) Specification
-</a>
+<br>
+<small>
+(<a href="https://uefi.org/sites/default/files/resources/ACPI_Spec_6_4_Jan22.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/acpi_6_4.pdf#page=166">p.166</a>: `System Description Table Header`</li>
-<li><a href="./spec/acpi_6_4.pdf#page=167">p.167</a>: `DESCRIPTION HEADER SIGNATURES`</li>
-<li><a href="./spec/acpi_6_4.pdf#page=402">p.402</a>: `6.2.10 _MAT (Multiple APIC Table Entry)`</li>
+<li>p.166: `System Description Table Header`</li>
+<li>p.167: `DESCRIPTION HEADER SIGNATURES`</li>
+<li>p.402: `6.2.10 _MAT (Multiple APIC Table Entry)`</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/armv8a_pg_1_0.pdf" class="spec-link">
+
+<h3>
   [armv8a_pg_1_0]
   ARM Cortex-A Series Version: 1.0 Programmer’s Guide for ARMv8-A
-</a>
+<br>
+<small>
+(<a href="https://documentation-service.arm.com/static/5fbd26f271eff94ef49c7020">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/armv8a_pg_1_0.pdf#page=88">p.88</a>: 6.5.4 Hint instructions (WFI)</li>
+<li>p.88: 6.5.4 Hint instructions (WFI)</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/cdc_1_2.pdf" class="spec-link">
+
+<h3>
   [cdc_1_2]
   Universal Serial Bus Class Definitions for Communications Devices
-</a>
+<br>
+<small>
+(<a href="https://www.usb.org/sites/default/files/CDC1.2_WMC1.1_012011.zip">zip</a> @ CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/cdc_1_2.pdf#page=16">p.16</a>: 3.4.2 Data Class Interface</li>
-<li><a href="./spec/cdc_1_2.pdf#page=20">p.20</a>: 02h: Communications Device Class Code</li>
-<li><a href="./spec/cdc_1_2.pdf#page=20">p.20</a>: 02h: Communications Interface Class Code</li>
-<li><a href="./spec/cdc_1_2.pdf#page=20">p.20</a>: 06h: Ethernet Networking Control Model: Interface Subclass Code</li>
-<li><a href="./spec/cdc_1_2.pdf#page=21">p.21</a>: 0Ah: Data Interface Class</li>
-<li><a href="./spec/cdc_1_2.pdf#page=25">p.25</a>: Table 12: Type Values for the bDescriptorType Field</li>
+<li>p.16: 3.4.2 Data Class Interface</li>
+<li>p.20: 02h: Communications Device Class Code</li>
+<li>p.20: 02h: Communications Interface Class Code</li>
+<li>p.20: 06h: Ethernet Networking Control Model: Interface Subclass Code</li>
+<li>p.21: 0Ah: Data Interface Class</li>
+<li>p.25: Table 12: Type Values for the bDescriptorType Field</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/ecm_1_2.pdf" class="spec-link">
+
+<h3>
   [ecm_1_2]
   Universal Serial Bus Communications Class Subclass Specification for Ethernet Control Model Devices Revision 1.2
-</a>
+<br>
+<small>
+(<a href="https://www.usb.org/sites/default/files/CDC1.2_WMC1.1_012011.zip">zip</a> @ CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf)
+</small>
+</h3>
+
+<div>
 <ul>
 
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/ich9.pdf" class="spec-link">
+
+<h3>
   [ich9]
   Intel I/O Controller Hub 9 (ICH9) Family
-</a>
+<br>
+<small>
+(<a href="https://www.intel.com/content/dam/doc/datasheet/io-controller-hub-9-datasheet.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/ich9.pdf#page=474">p.474</a>: APIC Registers</li>
-<li><a href="./spec/ich9.pdf#page=477">p.477</a>: Redirection Table</li>
+<li>p.474: APIC Registers</li>
+<li>p.477: Redirection Table</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/pci_20.pdf" class="spec-link">
+
+<h3>
   [pci_20]
   PCI Local Bus Specification
-</a>
+<br>
+<small>
+(<a href="https://www.cl.cam.ac.uk/~djm202/pdf/specifications/pcie/PCI_Express_Base_Rev_2.0_20Dec06a.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/pci_20.pdf#page=415">p.415</a>: Figure 7-3: PCI Express Configuration Space Layout</li>
-<li><a href="./spec/pci_20.pdf#page=416">p.416</a>: 7.2.2. PCI Express Enhanced Configuration Access Mechanism (ECAM)</li>
-<li><a href="./spec/pci_20.pdf#page=426">p.426</a>: 7.5.1. Type 0/1 Common Configuration Space</li>
+<li>p.415: Figure 7-3: PCI Express Configuration Space Layout</li>
+<li>p.416: 7.2.2. PCI Express Enhanced Configuration Access Mechanism (ECAM)</li>
+<li>p.426: 7.5.1. Type 0/1 Common Configuration Space</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/rtl8139d.pdf" class="spec-link">
+
+<h3>
   [rtl8139d]
   RTL8139D DataSheet
-</a>
+<br>
+<small>
+(<a href="https://www.cs.usfca.edu/~cruse/cs326f04/RTL8139D_DataSheet.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/rtl8139d.pdf#page=10">p.10</a>: Register Descriptions</li>
-<li><a href="./spec/rtl8139d.pdf#page=12">p.12</a>: 5.1 Receive Status Register in Rx packet header</li>
+<li>p.10: Register Descriptions</li>
+<li>p.12: 5.1 Receive Status Register in Rx packet header</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/rtl8139pg.pdf" class="spec-link">
+
+<h3>
   [rtl8139pg]
   RTL8139 Programming guide
-</a>
+<br>
+<small>
+(<a href="https://www.cs.usfca.edu/~cruse/cs326f04/RTL8139_ProgrammersGuide.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/rtl8139pg.pdf#page=2">p.2</a>: Transmission process</li>
-<li><a href="./spec/rtl8139pg.pdf#page=6">p.6</a>: Receive process</li>
+<li>p.2: Transmission process</li>
+<li>p.6: Receive process</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/sdm_vol1.pdf" class="spec-link">
+
+<h3>
   [sdm_vol1]
   Intel SDM Vol.1
-</a>
+<br>
+<small>
+(<a href="https://cdrdv2.intel.com/v1/dl/getContent/671436">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/sdm_vol1.pdf#page=161">p.161</a>: 6.5.1 Call and Return Operation for Interrupt or Exception Handling Procedures</li>
-<li><a href="./spec/sdm_vol1.pdf#page=167">p.167</a>: 6.5.6 Interrupt and Exception Behavior in 64-Bit Mode</li>
+<li>p.161: 6.5.1 Call and Return Operation for Interrupt or Exception Handling Procedures</li>
+<li>p.167: 6.5.6 Interrupt and Exception Behavior in 64-Bit Mode</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/sdm_vol2.pdf" class="spec-link">
+
+<h3>
   [sdm_vol2]
   Intel SDM Vol.2
-</a>
+<br>
+<small>
+(<a href="https://cdrdv2.intel.com/v1/dl/getContent/671110">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/sdm_vol2.pdf#page=319">p.319</a>: CPUID list</li>
-<li><a href="./spec/sdm_vol2.pdf#page=1403">p.1403</a>: SYSCALL</li>
-<li><a href="./spec/sdm_vol2.pdf#page=2215">p.2215</a>: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS</li>
-<li><a href="./spec/sdm_vol2.pdf#page=2215">p.2215</a>: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS</li>
+<li>p.319: CPUID list</li>
+<li>p.1403: SYSCALL</li>
+<li>p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS</li>
+<li>p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/sdm_vol3.pdf" class="spec-link">
+
+<h3>
   [sdm_vol3]
   Intel SDM Vol.3
-</a>
+<br>
+<small>
+(<a href="https://cdrdv2.intel.com/v1/dl/getContent/671447">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/sdm_vol3.pdf#page=67">p.67</a>: 2.2 MODES OF OPERATION</li>
-<li><a href="./spec/sdm_vol3.pdf#page=69">p.69</a>: 2.2.1 Extended Feature Enable Register</li>
-<li><a href="./spec/sdm_vol3.pdf#page=70">p.70</a>: 2.3 SYSTEM FLAGS AND FIELDS IN THE EFLAGS REGISTER</li>
-<li><a href="./spec/sdm_vol3.pdf#page=139">p.139</a>: 4.7 PAGE-FAULT EXCEPTIONS</li>
-<li><a href="./spec/sdm_vol3.pdf#page=180">p.180</a>: 5.8.8 Fast System Calls in 64-Bit Mode</li>
-<li><a href="./spec/sdm_vol3.pdf#page=181">p.181</a>: Figure 5-14. MSRs Used by SYSCALL and SYSRET</li>
-<li><a href="./spec/sdm_vol3.pdf#page=387">p.387</a>: `IA32_APIC_BASE MSR`</li>
-<li><a href="./spec/sdm_vol3.pdf#page=416">p.416</a>: 10.12.1 Detecting and Enabling x2APIC Mode</li>
-<li><a href="./spec/sdm_vol3.pdf#page=660">p.660</a>: 17.17.1 Invariant TSC</li>
+<li>p.67: 2.2 MODES OF OPERATION</li>
+<li>p.69: 2.2.1 Extended Feature Enable Register</li>
+<li>p.70: 2.3 SYSTEM FLAGS AND FIELDS IN THE EFLAGS REGISTER</li>
+<li>p.139: 4.7 PAGE-FAULT EXCEPTIONS</li>
+<li>p.180: 5.8.8 Fast System Calls in 64-Bit Mode</li>
+<li>p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET</li>
+<li>p.387: `IA32_APIC_BASE MSR`</li>
+<li>p.416: 10.12.1 Detecting and Enabling x2APIC Mode</li>
+<li>p.660: 17.17.1 Invariant TSC</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/sdm_vol4.pdf" class="spec-link">
+
+<h3>
   [sdm_vol4]
   Intel SDM Vol.4
-</a>
+<br>
+<small>
+(<a href="https://cdrdv2.intel.com/v1/dl/getContent/671098">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/sdm_vol4.pdf#page=20">p.20</a>: `IA32_APIC_BASE`</li>
-<li><a href="./spec/sdm_vol4.pdf#page=20">p.20</a>: `IA32_TIME_STAMP_COUNTER`</li>
-<li><a href="./spec/sdm_vol4.pdf#page=22">p.22</a>: `IA32_TSC_ADJUST`</li>
+<li>p.20: `IA32_APIC_BASE`</li>
+<li>p.20: `IA32_TIME_STAMP_COUNTER`</li>
+<li>p.22: `IA32_TSC_ADJUST`</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/uefi_2_9.pdf" class="spec-link">
+
+<h3>
   [uefi_2_9]
   Unified Extensible Firmware Interface (UEFI) Specification
-</a>
+<br>
+<small>
+(<a href="https://uefi.org/sites/default/files/resources/UEFI_Spec_2_9_2021_03_18.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/uefi_2_9.pdf#page=169">p.169</a>: `EFI_SYSTEM_TABLE`</li>
-<li><a href="./spec/uefi_2_9.pdf#page=177">p.177</a>: `EFI_CONFIGURATION_TABLE`</li>
-<li><a href="./spec/uefi_2_9.pdf#page=586">p.586</a>: `EFI_SIMPLE_FILE SYSTEM_PROTOCOL.OpenVolume()`</li>
-<li><a href="./spec/uefi_2_9.pdf#page=588">p.588</a>: `typedef struct _EFI_FILE_PROTOCOL`</li>
-<li><a href="./spec/uefi_2_9.pdf#page=589">p.589</a>: `EFI_FILE_PROTOCOL.Open()`</li>
-<li><a href="./spec/uefi_2_9.pdf#page=605">p.605</a>: `EFI_FILE_INFO`</li>
+<li>p.169: `EFI_SYSTEM_TABLE`</li>
+<li>p.177: `EFI_CONFIGURATION_TABLE`</li>
+<li>p.586: `EFI_SIMPLE_FILE SYSTEM_PROTOCOL.OpenVolume()`</li>
+<li>p.588: `typedef struct _EFI_FILE_PROTOCOL`</li>
+<li>p.589: `EFI_FILE_PROTOCOL.Open()`</li>
+<li>p.605: `EFI_FILE_INFO`</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/usb_2_0.pdf" class="spec-link">
+
+<h3>
   [usb_2_0]
   Universal Serial Bus Specification Revision 2.0
-</a>
+<br>
+<small>
+(<a href="https://www.usb.org/sites/default/files/usb_20_20190524.zip">zip</a> @ usb_20_20190524/usb_20.pdf)
+</small>
+</h3>
+
+<div>
 <ul>
-<li><a href="./spec/usb_2_0.pdf#page=268">p.268</a>: Figure 9-1. Device State Diagram</li>
-<li><a href="./spec/usb_2_0.pdf#page=278">p.278</a>: 9.4 Standard Device Requests</li>
-<li><a href="./spec/usb_2_0.pdf#page=279">p.279</a>: Table 9-4. Standard Request Codes</li>
-<li><a href="./spec/usb_2_0.pdf#page=279">p.279</a>: Table 9-5. Descriptor Types</li>
-<li><a href="./spec/usb_2_0.pdf#page=281">p.281</a>: 9.4.3 Get Descriptor Request</li>
-<li><a href="./spec/usb_2_0.pdf#page=282">p.282</a>: All devices must provide a device descriptor and at least one configuration descriptor</li>
-<li><a href="./spec/usb_2_0.pdf#page=297">p.297</a>: 9.6.6 Endpoint Descriptor</li>
-<li><a href="./spec/usb_2_0.pdf#page=301">p.301</a>: 9.6.7 String Descriptor</li>
+<li>p.268: Figure 9-1. Device State Diagram</li>
+<li>p.278: 9.4 Standard Device Requests</li>
+<li>p.279: Table 9-4. Standard Request Codes</li>
+<li>p.279: Table 9-5. Descriptor Types</li>
+<li>p.281: 9.4.3 Get Descriptor Request</li>
+<li>p.282: All devices must provide a device descriptor and at least one configuration descriptor</li>
+<li>p.297: 9.6.6 Endpoint Descriptor</li>
+<li>p.301: 9.6.7 String Descriptor</li>
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/usb_type_c.pdf" class="spec-link">
+
+<h3>
   [usb_type_c]
   Universal Serial Bus Type-C Cable and Connector Specification
-</a>
+<br>
+<small>
+(<a href="https://www.usb.org/sites/default/files/USB%20Type-C%20Spec%20R2.0%20-%20August%202019.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
 <ul>
 
 </ul>
-</li>
+</div>
 
 
-<li class="spec">
-<a href="./spec/xhci_1_2.pdf" class="spec-link">
+
+<h3>
   [xhci_1_2]
   eXtensible Host Controller Interface for Universal Serial Bus (xHCI) Requirements Specification May 2019 Revision 1.2
-</a>
-<ul>
-<li><a href="./spec/xhci_1_2.pdf#page=83">p.83</a>: 4.3 USB Device Initialization</li>
-<li><a href="./spec/xhci_1_2.pdf#page=91">p.91</a>: 4.3.6 Setting Alternate Interfaces</li>
-<li><a href="./spec/xhci_1_2.pdf#page=160">p.160</a>: 4.8 Endpoint</li>
-<li><a href="./spec/xhci_1_2.pdf#page=161">p.161</a>: 4.8.2 Endpoint Context Initialization</li>
-<li><a href="./spec/xhci_1_2.pdf#page=163">p.163</a>: Figure 4-5: Endpoint State Diagram</li>
-<li><a href="./spec/xhci_1_2.pdf#page=370">p.370</a>: Register Attributes</li>
-<li><a href="./spec/xhci_1_2.pdf#page=406">p.406</a>: 5.4.8 Port Status and Control Register (PORTSC)</li>
-<li><a href="./spec/xhci_1_2.pdf#page=454">p.454</a>: 6.2.3.2 Configure Endpoint Command Usage</li>
-<li><a href="./spec/xhci_1_2.pdf#page=459">p.459</a>: 6.2.5 Input Context</li>
-<li><a href="./spec/xhci_1_2.pdf#page=461">p.461</a>: 6.2.5.1 Input Control Context</li>
-<li><a href="./spec/xhci_1_2.pdf#page=491">p.491</a>: 6.4.3.5 Configure Endpoint Command TRB</li>
-</ul>
-</li>
+<br>
+<small>
+(<a href="https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf">pdf</a>)
+</small>
+</h3>
 
+<div>
+<ul>
+<li>p.83: 4.3 USB Device Initialization</li>
+<li>p.91: 4.3.6 Setting Alternate Interfaces</li>
+<li>p.160: 4.8 Endpoint</li>
+<li>p.161: 4.8.2 Endpoint Context Initialization</li>
+<li>p.163: Figure 4-5: Endpoint State Diagram</li>
+<li>p.370: Register Attributes</li>
+<li>p.406: 5.4.8 Port Status and Control Register (PORTSC)</li>
+<li>p.454: 6.2.3.2 Configure Endpoint Command Usage</li>
+<li>p.459: 6.2.5 Input Context</li>
+<li>p.461: 6.2.5.1 Input Control Context</li>
+<li>p.491: 6.4.3.5 Configure Endpoint Command TRB</li>
 </ul>
+</div>
+
 </body>

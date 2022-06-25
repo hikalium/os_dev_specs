@@ -37,28 +37,52 @@ enum IndexHtmlVariant {
     Public,
 }
 
-fn spec_file_add(
-    body_contents: &mut Vec<String>,
-    ref_info: &Reference,
-    _variant: IndexHtmlVariant,
-) {
+fn spec_file_add(body_contents: &mut Vec<String>, ref_info: &Reference, variant: IndexHtmlVariant) {
     let id = &ref_info.id;
     let url = format!("./spec/{}.pdf", id.trim());
-    let title = match &ref_info.source {
+    let source = &ref_info.source;
+    let source_links = source.gen_links();
+    let title = match source {
         ReferenceSourceInfo::Pdf { title, .. } => title.clone(),
         ReferenceSourceInfo::Zip { title, .. } => title.clone(),
     };
-    body_contents.push(format!(
-        r##"
-<li class="spec">
-<a href="{url}" class="spec-link">
+    let heading = match variant {
+        IndexHtmlVariant::Local => {
+            format!(
+                r##"
+<h3><a href="{url}" class="spec-link">
   [{id}]
   {title}
 </a>
+<br>
+<small>
+{source_links}
+</small>
+</h3>
+"##,
+            )
+        }
+        IndexHtmlVariant::Public => format!(
+            r##"
+<h3>
+  [{id}]
+  {title}
+<br>
+<small>
+{source_links}
+</small>
+</h3>
+"##,
+        ),
+    };
+    body_contents.push(format!(
+        r##"
+{heading}
+<div>
 <ul>
 {}
 </ul>
-</li>
+</div>
 "##,
         ref_info
             .entries
@@ -66,7 +90,14 @@ fn spec_file_add(
             .map(|p| {
                 let page = p.page;
                 let description = &p.description;
-                format!(r##"<li><a href="{url}#page={page}">p.{page}</a>: {description}</li>"##,)
+                match variant {
+                    IndexHtmlVariant::Local => {
+                        format!(
+                            r##"<li><a href="{url}#page={page}">p.{page}</a>: {description}</li>"##,
+                        )
+                    }
+                    IndexHtmlVariant::Public => format!(r##"<li>p.{page}: {description}</li>"##),
+                }
             })
             .collect::<Vec<String>>()
             .join("\n")
@@ -134,6 +165,14 @@ zip
 ```
 "
             ),
+        }
+    }
+    fn gen_links(&self) -> String {
+        match self {
+            ReferenceSourceInfo::Pdf { url, .. } => format!("(<a href=\"{url}\">pdf</a>)"),
+            ReferenceSourceInfo::Zip { url, rel_path, .. } => {
+                format!("(<a href=\"{url}\">zip</a> @ {rel_path})")
+            }
         }
     }
 }
@@ -204,11 +243,10 @@ fn gen_download_script(ref_list: &Vec<Reference>) {
 
 fn gen_html(ref_list: &Vec<Reference>, dst_path: &str, variant: IndexHtmlVariant) {
     println!("Generating {dst_path}...");
-    let mut body_contents = vec!["<ul>".to_string()];
+    let mut body_contents = vec![];
     for ref_info in ref_list {
         spec_file_add(&mut body_contents, &ref_info, variant);
     }
-    body_contents.push(String::from("</ul>"));
     let mut f = std::fs::File::create(dst_path).unwrap();
     let body_contents = body_contents.join("\n");
     f.write_all(format!(
@@ -222,13 +260,31 @@ fn gen_html(ref_list: &Vec<Reference>, dst_path: &str, variant: IndexHtmlVariant
 body {{
     font-family: 'Source Code Pro', monospace;
 }}
+div {{
+    margin-left: 64px;
+}}
 a {{
     color: #1d68cd;
     text-decoration: none;
 }}
+p {{
+    margin-bottom: 32px;
+}}
+h3 {{
+    border-top: 1px solid #9dc0f0;
+    border-left: 4px solid #9dc0f0;
+    padding: 8px;
+    margin-top: 32px;
+    margin-bottom: 8px;
+}}
 small {{
     color: #888888;
     text-decoration: none;
+}}
+ul {{
+    list-style-type: none;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }}
 .spec {{
     margin-top: 16px;
@@ -240,6 +296,7 @@ small {{
 </head>
 <body>
   <h1>os_dev_specs <small>({variant:?})</small></h1>
+  <p>source: <a href="https://github.com/hikalium/os_dev_specs">hikalium/os_dev_specs</a></p>
   {}
 </body>"##,
         body_contents,
