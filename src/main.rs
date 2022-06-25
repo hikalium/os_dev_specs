@@ -31,7 +31,7 @@ struct PdfPageEntry {
     page: u64,
     description: String,
 }
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 enum IndexHtmlVariant {
     Local,
     Public,
@@ -226,6 +226,10 @@ a {{
     color: #1d68cd;
     text-decoration: none;
 }}
+small {{
+    color: #888888;
+    text-decoration: none;
+}}
 .spec {{
     margin-top: 16px;
 }}
@@ -235,7 +239,7 @@ a {{
 </style>
 </head>
 <body>
-  <h1>os_dev_specs</h1>
+  <h1>os_dev_specs <small>({variant:?})</small></h1>
   {}
 </body>"##,
         body_contents,
