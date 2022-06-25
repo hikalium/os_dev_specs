@@ -259,6 +259,7 @@ fn gen_html(ref_list: &Vec<Reference>, dst_path: &str, variant: IndexHtmlVariant
   <style>
 body {{
     font-family: 'Source Code Pro', monospace;
+    margin-left: 16px;
 }}
 div {{
     margin-left: 64px;
@@ -271,8 +272,8 @@ p {{
     margin-bottom: 32px;
 }}
 h3 {{
-    border-top: 1px solid #9dc0f0;
-    border-left: 4px solid #9dc0f0;
+    border-top: 1px dotted #9dc0f0;
+    border-left: 8px solid #9dc0f0;
     padding: 8px;
     margin-top: 32px;
     margin-bottom: 8px;
