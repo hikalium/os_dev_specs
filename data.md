@@ -52,6 +52,17 @@ CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
 
 
 
+# `hpet_1_0a`
+
+```
+IA-PC HPET (High Precision Event Timers) Specification 1.0a
+pdf
+https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf
+```
+
+- p.30: `3.2.4 The ACPI 2.0 HPET Description Table (HPET)`
+
+
 # `ich9`
 
 ```
@@ -122,8 +133,8 @@ https://cdrdv2.intel.com/v1/dl/getContent/671110
 ```
 
 - p.319: CPUID list
+- p.331: EAX=0x15 Time stamp counter and nominal core crystal clock info leaf
 - p.1403: SYSCALL
-- p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS
 - p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS
 
 
@@ -139,11 +150,18 @@ https://cdrdv2.intel.com/v1/dl/getContent/671447
 - p.69: 2.2.1 Extended Feature Enable Register
 - p.70: 2.3 SYSTEM FLAGS AND FIELDS IN THE EFLAGS REGISTER
 - p.139: 4.7 PAGE-FAULT EXCEPTIONS
+- p.139: 6.3 SOURCES OF INTERRUPTS
 - p.180: 5.8.8 Fast System Calls in 64-Bit Mode
 - p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET
+- p.384: Table 10-1. Local APIC Register Address Map
 - p.387: `IA32_APIC_BASE MSR`
+- p.390: LVT Timer Register (FEE0 0320H)
+- p.391: Figure 10-8. Local Vector Table (LVT)
+- p.395: 10.5.4 APIC Timer
 - p.416: 10.12.1 Detecting and Enabling x2APIC Mode
 - p.660: 17.17.1 Invariant TSC
+- p.832: 19.7 COUNTING CLOCKS ( Bus Clock, Core Crystal Clock, Time-stamp counter )
+- p.834: 19.7.3 Determining the Processor Base Frequency
 
 
 # `sdm_vol4`
@@ -157,6 +175,7 @@ https://cdrdv2.intel.com/v1/dl/getContent/671098
 - p.20: `IA32_APIC_BASE`
 - p.20: `IA32_TIME_STAMP_COUNTER`
 - p.22: `IA32_TSC_ADJUST`
+- p.81: `MSR_FSB_FREQ` (Bus Clock)
 
 
 # `uefi_2_9`

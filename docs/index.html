@@ -124,6 +124,23 @@ ul {
 
 
 <h3>
+  [hpet_1_0a]
+  IA-PC HPET (High Precision Event Timers) Specification 1.0a
+<br>
+<small>
+(<a href="https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf">pdf</a>)
+</small>
+</h3>
+
+<div>
+<ul>
+<li>p.30: `3.2.4 The ACPI 2.0 HPET Description Table (HPET)`</li>
+</ul>
+</div>
+
+
+
+<h3>
   [ich9]
   Intel I/O Controller Hub 9 (ICH9) Family
 <br>
@@ -226,8 +243,8 @@ ul {
 <div>
 <ul>
 <li>p.319: CPUID list</li>
+<li>p.331: EAX=0x15 Time stamp counter and nominal core crystal clock info leaf</li>
 <li>p.1403: SYSCALL</li>
-<li>p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS</li>
 <li>p.2215: APPENDIX B INSTRUCTION FORMATS AND ENCODINGS</li>
 </ul>
 </div>
@@ -249,11 +266,18 @@ ul {
 <li>p.69: 2.2.1 Extended Feature Enable Register</li>
 <li>p.70: 2.3 SYSTEM FLAGS AND FIELDS IN THE EFLAGS REGISTER</li>
 <li>p.139: 4.7 PAGE-FAULT EXCEPTIONS</li>
+<li>p.139: 6.3 SOURCES OF INTERRUPTS</li>
 <li>p.180: 5.8.8 Fast System Calls in 64-Bit Mode</li>
 <li>p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET</li>
+<li>p.384: Table 10-1. Local APIC Register Address Map</li>
 <li>p.387: `IA32_APIC_BASE MSR`</li>
+<li>p.390: LVT Timer Register (FEE0 0320H)</li>
+<li>p.391: Figure 10-8. Local Vector Table (LVT)</li>
+<li>p.395: 10.5.4 APIC Timer</li>
 <li>p.416: 10.12.1 Detecting and Enabling x2APIC Mode</li>
 <li>p.660: 17.17.1 Invariant TSC</li>
+<li>p.832: 19.7 COUNTING CLOCKS ( Bus Clock, Core Crystal Clock, Time-stamp counter )</li>
+<li>p.834: 19.7.3 Determining the Processor Base Frequency</li>
 </ul>
 </div>
 
@@ -273,6 +297,7 @@ ul {
 <li>p.20: `IA32_APIC_BASE`</li>
 <li>p.20: `IA32_TIME_STAMP_COUNTER`</li>
 <li>p.22: `IA32_TSC_ADJUST`</li>
+<li>p.81: `MSR_FSB_FREQ` (Bus Clock)</li>
 </ul>
 </div>
 
