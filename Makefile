@@ -1,5 +1,4 @@
-default:
-	cargo build
+default: run
 
 .PHONY : default download run watch
 

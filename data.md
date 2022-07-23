@@ -7,6 +7,7 @@ pdf
 https://uefi.org/sites/default/files/resources/ACPI_Spec_6_4_Jan22.pdf
 ```
 
+- p.162: `5.2.3.2 Generic Address Structure`
 - p.166: `System Description Table Header`
 - p.167: `DESCRIPTION HEADER SIGNATURES`
 - p.402: `6.2.10 _MAT (Multiple APIC Table Entry)`
@@ -52,6 +53,17 @@ CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
 
 
 
+# `elf_1_2`
+
+```
+Executable and Linking Format (ELF) Specification
+pdf
+https://refspecs.linuxfoundation.org/elf/elf.pdf
+```
+
+
+
+
 # `hpet_1_0a`
 
 ```
@@ -60,6 +72,7 @@ pdf
 https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/software-developers-hpet-spec-1-0a.pdf
 ```
 
+- p.21: `2.3.9.2.2 Periodic Mode`
 - p.30: `3.2.4 The ACPI 2.0 HPET Description Table (HPET)`
 
 
@@ -75,10 +88,21 @@ https://www.intel.com/content/dam/doc/datasheet/io-controller-hub-9-datasheet.pd
 - p.477: Redirection Table
 
 
-# `pci_20`
+# `pci_22`
 
 ```
 PCI Local Bus Specification
+pdf
+https://www.ics.uci.edu/~harris/ics216/pci/PCI_22.pdf
+```
+
+
+
+
+# `pcie_20`
+
+```
+PCI Express Base Specification
 pdf
 https://www.cl.cam.ac.uk/~djm202/pdf/specifications/pcie/PCI_Express_Base_Rev_2.0_20Dec06a.pdf
 ```
@@ -149,16 +173,20 @@ https://cdrdv2.intel.com/v1/dl/getContent/671447
 - p.67: 2.2 MODES OF OPERATION
 - p.69: 2.2.1 Extended Feature Enable Register
 - p.70: 2.3 SYSTEM FLAGS AND FIELDS IN THE EFLAGS REGISTER
+- p.134: Figure 4-11. Formats of CR3 and Paging-Structure Entries with 4-Level Paging and 5-Level Paging
 - p.139: 4.7 PAGE-FAULT EXCEPTIONS
-- p.139: 6.3 SOURCES OF INTERRUPTS
 - p.180: 5.8.8 Fast System Calls in 64-Bit Mode
 - p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET
+- p.194: 6.3 SOURCES OF INTERRUPTS
 - p.384: Table 10-1. Local APIC Register Address Map
 - p.387: `IA32_APIC_BASE MSR`
 - p.390: LVT Timer Register (FEE0 0320H)
 - p.391: Figure 10-8. Local Vector Table (LVT)
 - p.395: 10.5.4 APIC Timer
 - p.416: 10.12.1 Detecting and Enabling x2APIC Mode
+- p.436: 11.3 METHODS OF CACHING AVAILABLE
+- p.442: Table 11-5. Cache Operating Modes
+- p.465: Table 11-11. Selection of PAT Entries with PAT, PCD, and PWT Flags
 - p.660: 17.17.1 Invariant TSC
 - p.832: 19.7 COUNTING CLOCKS ( Bus Clock, Core Crystal Clock, Time-stamp counter )
 - p.834: 19.7.3 Determining the Processor Base Frequency
