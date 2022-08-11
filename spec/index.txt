@@ -3,6 +3,7 @@ bab45e78b4a60d5c301aeddbca282f8a1e2d34c1  armv8a_pg_1_0.pdf
 d00b676a9c3ecba2a4ed4479ae0c971457d8cffc  cdc_1_2.pdf
 d00b676a9c3ecba2a4ed4479ae0c971457d8cffc  ecm_1_2.pdf
 cc6b77b21f0b046b91eee86df8daf79b7d3a1e23  elf_1_2.pdf
+191b42df76083cb8c5e190ac06474c1419414dcf  hid_1_11.pdf
 fcf91bafd2b7f9b9931ef7d6e37f83288245ede8  hpet_1_0a.pdf
 e53c4211173808a0e6b4e40c34877dec04ba6fac  ich9.pdf
 4f61a80e891e4c9c1dc611630a3fae209851efad  pci_20.pdf

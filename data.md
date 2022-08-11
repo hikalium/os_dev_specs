@@ -64,6 +64,17 @@ https://refspecs.linuxfoundation.org/elf/elf.pdf
 
 
 
+# `hid_1_11`
+
+```
+Device Class Definition for HID 1.11
+pdf
+https://www.usb.org/sites/default/files/hid1_11.pdf
+```
+
+
+
+
 # `hpet_1_0a`
 
 ```
@@ -96,7 +107,10 @@ pdf
 https://www.ics.uci.edu/~harris/ics216/pci/PCI_22.pdf
 ```
 
-
+- p.211: Capabilities Pointer
+- p.211: Figure 6-1: Type 00h Configuration Space Header
+- p.222: BAR: Base Address Register
+- p.233: 6.7 Capabilities List
 
 
 # `pcie_20`
@@ -260,14 +274,19 @@ pdf
 https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
 ```
 
+- p.64: Figure 3-4: Transfer ring
+- p.66: Figure 3-6: Simple Transfer Example
+- p.69: Figure 3-8: Control Transfer Descriptor Example
 - p.83: 4.3 USB Device Initialization
 - p.91: 4.3.6 Setting Alternate Interfaces
-- p.160: 4.8 Endpoint
+- p.107: No Op command
 - p.161: 4.8.2 Endpoint Context Initialization
 - p.163: Figure 4-5: Endpoint State Diagram
 - p.370: Register Attributes
 - p.406: 5.4.8 Port Status and Control Register (PORTSC)
+- p.439: Data structure requirements
 - p.454: 6.2.3.2 Configure Endpoint Command Usage
+- p.456: 6.2.3.6 Interval
 - p.459: 6.2.5 Input Context
 - p.461: 6.2.5.1 Input Control Context
 - p.491: 6.4.3.5 Configure Endpoint Command TRB
