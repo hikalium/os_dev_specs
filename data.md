@@ -72,7 +72,9 @@ pdf
 https://www.usb.org/sites/default/files/hid1_11.pdf
 ```
 
-
+- p.17: `4.1 The HID Class (interface_class == 3 -> HID)`
+- p.18: `4.2 Subclass (interface_subclass == 1 -> Boot Interface)`
+- p.19: `4.3 Protocols (interface_protocol 1 -> keyboard, 2 -> mouse)`
 
 
 # `hpet_1_0a`
@@ -282,6 +284,7 @@ https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifica
 - p.107: No Op command
 - p.161: 4.8.2 Endpoint Context Initialization
 - p.163: Figure 4-5: Endpoint State Diagram
+- p.300: Figure 4-25: USB2 Root Hub Port State Machine
 - p.370: Register Attributes
 - p.406: 5.4.8 Port Status and Control Register (PORTSC)
 - p.439: Data structure requirements
@@ -290,3 +293,5 @@ https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifica
 - p.459: 6.2.5 Input Context
 - p.461: 6.2.5.1 Input Control Context
 - p.491: 6.4.3.5 Configure Endpoint Command TRB
+- p.507: TRB Completion Codes
+- p.511: Table 6-91: TRB Type Definitions
