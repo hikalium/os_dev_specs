@@ -248,6 +248,7 @@ usb_20_20190524/usb_20.pdf
 ```
 
 - p.268: Figure 9-1. Device State Diagram
+- p.276: bmRequestType bitmap
 - p.278: 9.4 Standard Device Requests
 - p.279: Table 9-4. Standard Request Codes
 - p.279: Table 9-5. Descriptor Types
