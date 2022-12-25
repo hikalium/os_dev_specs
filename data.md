@@ -222,6 +222,17 @@ https://cdrdv2.intel.com/v1/dl/getContent/671098
 - p.81: `MSR_FSB_FREQ` (Bus Clock)
 
 
+# `sysv_abi_0_99`
+
+```
+System V Application Binary Interface - AMD64 Architecture Processor Supplement
+pdf
+https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf
+```
+
+
+
+
 # `uefi_2_9`
 
 ```
