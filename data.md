@@ -61,7 +61,7 @@ pdf
 https://refspecs.linuxfoundation.org/elf/elf.pdf
 ```
 
-
+- p.78: `Dynamic Section`
 
 
 # `hid_1_11`
@@ -194,6 +194,7 @@ https://cdrdv2.intel.com/v1/dl/getContent/671447
 - p.180: 5.8.8 Fast System Calls in 64-Bit Mode
 - p.181: Figure 5-14. MSRs Used by SYSCALL and SYSRET
 - p.194: 6.3 SOURCES OF INTERRUPTS
+- p.269: 7.7 TASK MANAGEMENT IN 64-BIT MODE
 - p.384: Table 10-1. Local APIC Register Address Map
 - p.387: `IA32_APIC_BASE MSR`
 - p.390: LVT Timer Register (FEE0 0320H)
