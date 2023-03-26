@@ -53,6 +53,17 @@ CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
 
 
 
+# `elf64_1_5_2`
+
+```
+ELF-64 Object File Format
+pdf
+https://uclibc.org/docs/elf-64-gen.pdf
+```
+
+
+
+
 # `elf_1_2`
 
 ```
@@ -62,6 +73,7 @@ https://refspecs.linuxfoundation.org/elf/elf.pdf
 ```
 
 - p.78: `Dynamic Section`
+- p.98: `Global Offset Table`
 
 
 # `hid_1_11`
