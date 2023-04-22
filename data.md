@@ -101,6 +101,17 @@ https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifica
 - p.30: `3.2.4 The ACPI 2.0 HPET Description Table (HPET)`
 
 
+# `hut1_12v2`
+
+```
+Universal Serial Bus HID Usage Tables
+pdf
+https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
+```
+
+- p.53: Boot Keyboard Page
+
+
 # `ich9`
 
 ```
