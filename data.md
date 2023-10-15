@@ -255,6 +255,7 @@ https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf
 ```
 
 - p.22: `Figure 3.4: Register Usage`
+- p.124: `A.2 AMD64 Linux Kernel Conventions`
 
 
 # `uefi_2_9`
