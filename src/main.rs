@@ -50,10 +50,9 @@ fn spec_file_add(body_contents: &mut Vec<String>, ref_info: &Reference, variant:
         IndexHtmlVariant::Local => {
             format!(
                 r##"
-<h3><a href="{url}" class="spec-link">
+<h3>
   [{id}]
-  {title}
-</a>
+<a href="{url}" class="spec-link">{title}</a>
 <br>
 <small>
 {source_links}
