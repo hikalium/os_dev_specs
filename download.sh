@@ -24,7 +24,7 @@ function download_spec_pdf {
 	if [[ -f "${PDF_PATH}" ]]; then
 		echo "${PDF_PATH} exists. Skip downloading..."
 	else
-		wget --user-agent="Mozilla" -O ${PDF_PATH} ${SPEC_URL}
+		wget --no-check-certificate --user-agent="Mozilla" -O ${PDF_PATH} ${SPEC_URL}
 	fi
 }
 
