@@ -168,7 +168,7 @@ zip
     }
     fn gen_links(&self) -> String {
         match self {
-            ReferenceSourceInfo::Pdf { url, .. } => format!("(<a href=\"{url}\">pdf</a>)"),
+            ReferenceSourceInfo::Pdf { url, .. } => format!("(<a href=\"{url}\">source pdf</a>)"),
             ReferenceSourceInfo::Zip { url, rel_path, .. } => {
                 format!("(<a href=\"{url}\">zip</a> @ {rel_path})")
             }
