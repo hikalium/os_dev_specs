@@ -151,6 +151,17 @@ https://www.cl.cam.ac.uk/~djm202/pdf/specifications/pcie/PCI_Express_Base_Rev_2.
 - p.426: 7.5.1. Type 0/1 Common Configuration Space
 
 
+# `pcie_40`
+
+```
+PCI Express® Base Specification - Revision 4.0 Version 0.3 - February 19, 2014
+pdf
+https://raw.githubusercontent.com/osdev-jp/spec/refs/heads/main/PCI_Express_Base_4.0_Rev0.3_February19-2014.pdf
+```
+
+- p.568: PCI Express Enhanced Configuration Access Mechanism (ECAM)
+
+
 # `rtl8139d`
 
 ```
