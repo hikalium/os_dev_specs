@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<input id="valueInput" value="206E1">
+<button onclick="parse()">parse!</button>
+<div id="resultDiv"></div>
+<script>
+const valueInput = document.getElementById("valueInput");
+const resultDiv = document.getElementById("resultDiv");
+function parse() {
+  const bitDef = [
+    ["CCS", 1],
+    ["PED", 1],
+    ["RsvdZ", 1],
+    ["OCA", 1],
+    ["PR", 1],
+    ["PLS", 4],
+    ["PP", 1],
+    ["PortSpeed", 4],
+    ["PIC", 2],
+    ["LWS", 1],
+    ["CSC", 1],
+    ["PEC", 1],
+    ["WRC", 1],
+    ["OCC", 1],
+    ["PRC", 1],
+    ["PLC", 1],
+    ["CEC", 1],
+    ["CAS", 1],
+    ["WCE", 1],
+    ["WDE", 1],
+    ["WOE", 1],
+    ["RsvdZ", 2],
+    ["DR", 1],
+    ["WPR", 1],
+  ];
+  const value = valueInput.value;
+  const binValue = "0".repeat(32) + parseInt(value, 16).toString(2);
+  let ofs = 0;
+  let result = "";
+  for(e of bitDef) {
+    const binValueChunk = binValue.substr(-(ofs + e[1]), e[1]);
+    result += `${e} = ${binValueChunk}\n`;
+    ofs += e[1];
+  }
+  result = `<pre>${result}</pre>`;
+  resultDiv.innerHTML=result;
+}
+parse();
+</script>
