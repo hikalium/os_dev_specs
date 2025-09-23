@@ -124,6 +124,17 @@ https://www.intel.com/content/dam/doc/datasheet/io-controller-hub-9-datasheet.pd
 - p.477: Redirection Table
 
 
+# `ncm_1_1`
+
+```
+USB Communication Class Subclass Spec for Network Control Model Devices
+pdf
+https://www.usb.org/sites/default/files/NCM11.pdf
+```
+
+
+
+
 # `pci_22`
 
 ```
