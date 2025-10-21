@@ -47,7 +47,7 @@ CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
 Universal Serial Bus Communications Class Subclass Specification for Ethernet Control Model Devices Revision 1.2
 zip
 https://www.usb.org/sites/default/files/CDC1.2_WMC1.1_012011.zip
-CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/CDC120-20101103-track.pdf
+CDC1.2_WMC1.1_012011/CDC1.2_WMC1.1/usbcdc12/ECM120.pdf
 ```
 
 
