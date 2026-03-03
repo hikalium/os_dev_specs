@@ -1,6 +1,6 @@
-#![feature(assert_matches)]
 extern crate notify;
 use clap::Parser;
+use clap::Subcommand;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use regex::Regex;
 use std::io::Write;
@@ -13,12 +13,22 @@ use std::time::Duration;
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
+    #[clap(subcommand)]
+    command: Option<Commands>,
+
     /// Path to data.md
+    #[clap(default_value = "data.md")]
     data_path: String,
 
     /// Monitor updates and rebuild
     #[clap(short, long)]
     watch: bool,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    /// Download specifications
+    Download,
 }
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct Reference {
@@ -343,8 +353,8 @@ fn update_data_md(ref_list: &Vec<Reference>) {
     f.write_all(body_contents.as_bytes()).unwrap();
 }
 
-fn build(path: PathBuf) -> Result<(), String> {
-    println!("build from {:?}", path);
+fn parse_references(path: PathBuf) -> Result<Vec<Reference>, String> {
+    println!("Parsing references from {:?}", path);
     let input = std::fs::read_to_string(path).expect("Failed to read from file");
     let input = input.trim();
     let input: Vec<&str> = input
@@ -380,7 +390,10 @@ fn build(path: PathBuf) -> Result<(), String> {
     for ref_info in &mut ref_list {
         ref_info.entries.sort();
     }
+    Ok(ref_list)
+}
 
+fn build(ref_list: &Vec<Reference>) -> Result<(), String> {
     gen_html(&ref_list, "index.html", IndexHtmlVariant::Local);
     gen_html(&ref_list, "docs/index.html", IndexHtmlVariant::Public);
     gen_download_script(&ref_list);
@@ -389,14 +402,133 @@ fn build(path: PathBuf) -> Result<(), String> {
     Ok(())
 }
 
-fn watch_and_build(rx: Receiver<DebouncedEvent>) -> Result<(), String> {
+fn download(ref_list: &Vec<Reference>) -> Result<(), String> {
+    let download_dir = "download";
+    let spec_dir = "spec";
+    let tmp_spec_dir = "spec_tmp";
+
+    std::fs::create_dir_all(download_dir).unwrap();
+    std::fs::create_dir_all(spec_dir).unwrap();
+    let _ = std::fs::remove_dir_all(tmp_spec_dir);
+    std::fs::create_dir_all(tmp_spec_dir).unwrap();
+
+    let mut failed_ids = Vec::new();
+
+    for ref_info in ref_list {
+        let id = &ref_info.id;
+        let dst_path = format!("{}/{}.pdf", tmp_spec_dir, id);
+        let result: Result<(), String> = (|| {
+            match &ref_info.source {
+                ReferenceSourceInfo::Pdf { url, .. } => {
+                    let download_path = format!("{}/{}.pdf", download_dir, id);
+                    if !std::path::Path::new(&download_path).exists() {
+                        println!("Downloading {}...", url);
+                        let status = process::Command::new("wget")
+                            .args(&["--no-check-certificate", "--user-agent=Mozilla", "-O", &download_path, url])
+                            .status()
+                            .map_err(|e| format!("failed to execute wget: {}", e))?;
+                        if !status.success() {
+                            let _ = std::fs::remove_file(&download_path);
+                            return Err(format!("wget failed with status: {}", status));
+                        }
+                    }
+                    std::fs::copy(&download_path, &dst_path).map_err(|e| format!("failed to copy: {}", e))?;
+                }
+                ReferenceSourceInfo::Zip { url, rel_path, .. } => {
+                    let download_path = format!("{}/{}.zip", download_dir, id);
+                    if !std::path::Path::new(&download_path).exists() {
+                        println!("Downloading {}...", url);
+                        let status = process::Command::new("wget")
+                            .args(&["--user-agent=Mozilla", "-O", &download_path, url])
+                            .status()
+                            .map_err(|e| format!("failed to execute wget: {}", e))?;
+                        if !status.success() {
+                            let _ = std::fs::remove_file(&download_path);
+                            return Err(format!("wget failed with status: {}", status));
+                        }
+                        let status = process::Command::new("unzip")
+                            .args(&["-o", "-d", download_dir, &download_path])
+                            .status()
+                            .map_err(|e| format!("failed to execute unzip: {}", e))?;
+                        if !status.success() {
+                            return Err(format!("unzip failed with status: {}", status));
+                        }
+                    }
+                    let src_path = format!("{}/{}", download_dir, rel_path);
+                    if !std::path::Path::new(&src_path).exists() {
+                        return Err(format!("extracted file not found: {}", src_path));
+                    }
+                    std::fs::copy(&src_path, &dst_path).map_err(|e| format!("failed to copy: {}", e))?;
+                }
+            }
+            Ok(())
+        })();
+
+        if let Err(e) = result {
+            eprintln!("Error processing {}: {}", id, e);
+            failed_ids.push(id.clone());
+        }
+    }
+
+    if !failed_ids.is_empty() {
+        eprintln!("The following references failed to process: {:?}", failed_ids);
+    }
+
+    let index_txt_path = format!("{}/index.txt", tmp_spec_dir);
+    let output = process::Command::new("sh")
+        .arg("-c")
+        .arg(format!("sha1sum {}/*.pdf | sed \"s#{}/##g\"", tmp_spec_dir, tmp_spec_dir))
+        .output()
+        .expect("failed to execute sha1sum");
+    std::fs::write(&index_txt_path, &output.stdout).unwrap();
+
+    let old_index_path = format!("{}/index.txt", spec_dir);
+    let mut needs_update = true;
+    if std::path::Path::new(&old_index_path).exists() {
+        let status = process::Command::new("diff")
+            .args(&["-u", &old_index_path, &index_txt_path])
+            .status()
+            .expect("failed to execute diff");
+        if status.success() {
+            println!("Files up to date");
+            needs_update = false;
+        } else {
+            println!("Diff found. Do you want to update? [Enter to proceed, or Ctrl-C to cancel]");
+            let mut input = String::new();
+            std::io::stdin().read_line(&mut input).unwrap();
+        }
+    }
+
+    if needs_update {
+        let _ = std::fs::remove_dir_all(spec_dir);
+        std::fs::create_dir_all(spec_dir).unwrap();
+        let status = process::Command::new("cp")
+            .args(&["-rv", &format!("{}/.", tmp_spec_dir), spec_dir])
+            .status()
+            .expect("failed to execute cp");
+        if !status.success() {
+            return Err(format!("cp failed with status: {}", status));
+        }
+    }
+
+    if !failed_ids.is_empty() {
+        return Err(format!("Some files failed to download: {:?}", failed_ids));
+    }
+
+    Ok(())
+}
+
+fn watch_and_build(rx: Receiver<DebouncedEvent>, path: PathBuf) -> Result<(), String> {
     use notify::DebouncedEvent::*;
     loop {
         match rx.recv() {
             Ok(event) => {
                 println!("{:?}", event);
                 match event {
-                    Create(path) => build(path)?,
+                    Create(_) | Write(_) | Rename(_, _) => {
+                        let ref_list = parse_references(path.clone())?;
+                        build(&ref_list)?;
+                    }
                     _ => {}
                 }
             }
@@ -406,19 +538,32 @@ fn watch_and_build(rx: Receiver<DebouncedEvent>) -> Result<(), String> {
 }
 fn main() {
     let args = Args::parse();
-    let file_to_watch = args.data_path;
+    let file_to_watch = PathBuf::from(&args.data_path);
     let do_watch = args.watch;
+
+    if let Some(Commands::Download) = args.command {
+        if let Err(e) = || -> Result<(), String> {
+            let ref_list = parse_references(file_to_watch)?;
+            download(&ref_list)?;
+            Ok(())
+        }() {
+            eprintln!("Error: {}", e);
+            process::exit(1);
+        }
+        return;
+    }
 
     let (tx, rx) = channel();
     let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-    println!("File to watch: {}", &file_to_watch);
+    println!("File to watch: {:?}", &file_to_watch);
     watcher
         .watch(file_to_watch.clone(), RecursiveMode::NonRecursive)
         .unwrap();
     if let Err(e) = || -> Result<(), String> {
-        build(file_to_watch.into())?;
+        let ref_list = parse_references(file_to_watch.clone())?;
+        build(&ref_list)?;
         if do_watch {
-            watch_and_build(rx)?;
+            watch_and_build(rx, file_to_watch)?;
         }
         Ok(())
     }() {

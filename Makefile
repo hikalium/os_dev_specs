@@ -2,10 +2,10 @@ default: run
 
 .PHONY : default download run watch
 
-download:
+download: download_entries.generated.sh
 	./download.sh
 
-run :
+download_entries.generated.sh :
 	cargo run -- `readlink -f data.md`
 
 watch :
