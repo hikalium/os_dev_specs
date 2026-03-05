@@ -1,4 +1,8 @@
 extern crate notify;
+use anyhow::anyhow;
+use anyhow::bail;
+use anyhow::Context;
+use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
@@ -14,7 +18,7 @@ use std::time::Duration;
 #[clap(author, version, about, long_about = None)]
 struct Args {
     #[clap(subcommand)]
-    command: Option<Commands>,
+    command: Commands,
 
     /// Path to data.md
     #[clap(default_value = "data.md")]
@@ -23,6 +27,8 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// Download specifications
+    Build,
     /// Download specifications
     Download,
     /// Monitor updates and rebuild
@@ -111,14 +117,14 @@ fn spec_file_add(body_contents: &mut Vec<String>, ref_info: &Reference, variant:
     ));
 }
 
-fn parse_id_line(line: &str) -> Result<String, String> {
+fn parse_id_line(line: &str) -> Result<String> {
     let re = Regex::new(r"#\s*`([0-9a-z_]+)`").unwrap();
     re.captures(line)
         .map(|s| s.get(1).unwrap().as_str().to_string())
-        .ok_or(format!("failed to parse id line. line: {}", line))
+        .context(anyhow!("failed to parse id line. line: {}", line))
 }
 
-fn parse_page_entry(line: &str) -> Result<PdfPageEntry, String> {
+fn parse_page_entry(line: &str) -> Result<PdfPageEntry> {
     let re = Regex::new(r"^-\s*p\.([0-9]+):(.*)$").unwrap();
     re.captures(line)
         .map(|c| PdfPageEntry {
@@ -130,7 +136,7 @@ fn parse_page_entry(line: &str) -> Result<PdfPageEntry, String> {
                 .expect("failed to parse page number"),
             description: c.get(2).unwrap().as_str().trim().to_string(),
         })
-        .ok_or(format!("failed to parse page entry. line: {}", line))
+        .context(anyhow!("failed to parse page entry. line: {}", line))
 }
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
@@ -184,26 +190,26 @@ zip
     }
 }
 
-fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo, String> {
+fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo> {
     if it.next() != Some(&"```") {
-        return Err("Expected ``` after id".to_string());
+        bail!("Expected ``` after id");
     }
     let title = it
         .next()
         .map(|s| s.trim())
-        .ok_or("title is needed in ref_info")?
+        .context(anyhow!("title is needed in ref_info"))?
         .to_string();
     let ref_type = it
         .next()
         .map(|s| s.trim())
-        .ok_or("type is needed in ref_info")?;
+        .context("type is needed in ref_info")?;
     let ref_info = match ref_type {
         "pdf" => ReferenceSourceInfo::Pdf {
             title,
             url: it
                 .next()
                 .map(|s| s.trim())
-                .ok_or("url is needed in ref_info".to_string())?
+                .context("url is needed in ref_info".to_string())?
                 .to_string(),
         },
         "zip" => ReferenceSourceInfo::Zip {
@@ -211,18 +217,18 @@ fn parse_reference(it: &mut Iter<&str>) -> Result<ReferenceSourceInfo, String> {
             url: it
                 .next()
                 .map(|s| s.trim())
-                .ok_or("url is needed in ref_info".to_string())?
+                .context("url is needed in ref_info".to_string())?
                 .to_string(),
             rel_path: it
                 .next()
                 .map(|s| s.trim())
-                .ok_or("url is needed in ref_info".to_string())?
+                .context("url is needed in ref_info".to_string())?
                 .to_string(),
         },
-        s => return Err(format!("Unexpected ref_info type: {}", s)),
+        s => return Err(anyhow!("Unexpected ref_info type: {}", s)),
     };
     if it.next() != Some(&"```") {
-        return Err("Expected ``` after ref_info".to_string());
+        bail!("Expected ``` after ref_info".to_string());
     }
     Ok(ref_info)
 }
@@ -355,7 +361,7 @@ fn update_data_md(ref_list: &Vec<Reference>) {
     f.write_all(new_content.as_bytes()).unwrap();
 }
 
-fn parse_references(path: PathBuf) -> Result<Vec<Reference>, String> {
+fn parse_references(path: PathBuf) -> Result<Vec<Reference>> {
     println!("Parsing references from {:?}", path);
     let input = std::fs::read_to_string(path).expect("Failed to read from file");
     let input = input.trim();
@@ -395,7 +401,7 @@ fn parse_references(path: PathBuf) -> Result<Vec<Reference>, String> {
     Ok(ref_list)
 }
 
-fn build(ref_list: &Vec<Reference>) -> Result<(), String> {
+fn build(ref_list: &Vec<Reference>) -> Result<()> {
     gen_html(ref_list, "index.html", IndexHtmlVariant::Local);
     gen_html(ref_list, "docs/index.html", IndexHtmlVariant::Public);
     gen_download_script(ref_list);
@@ -404,7 +410,7 @@ fn build(ref_list: &Vec<Reference>) -> Result<(), String> {
     Ok(())
 }
 
-fn download(ref_list: &Vec<Reference>) -> Result<(), String> {
+fn download(ref_list: &Vec<Reference>) -> Result<()> {
     let download_dir = "download";
     let spec_dir = "spec";
     let tmp_spec_dir = "spec_tmp";
@@ -419,7 +425,7 @@ fn download(ref_list: &Vec<Reference>) -> Result<(), String> {
     for ref_info in ref_list {
         let id = &ref_info.id;
         let dst_path = format!("{}/{}.pdf", tmp_spec_dir, id);
-        let result: Result<(), String> = (|| {
+        let result: Result<()> = (|| {
             match &ref_info.source {
                 ReferenceSourceInfo::Pdf { url, .. } => {
                     let download_path = format!("{}/{}.pdf", download_dir, id);
@@ -434,14 +440,13 @@ fn download(ref_list: &Vec<Reference>) -> Result<(), String> {
                                 url,
                             ])
                             .status()
-                            .map_err(|e| format!("failed to execute wget: {}", e))?;
+                            .context(anyhow!("failed to execute wget"))?;
                         if !status.success() {
                             let _ = std::fs::remove_file(&download_path);
-                            return Err(format!("wget failed with status: {}", status));
+                            return Err(anyhow!("wget failed with status: {}", status));
                         }
                     }
-                    std::fs::copy(&download_path, &dst_path)
-                        .map_err(|e| format!("failed to copy: {}", e))?;
+                    std::fs::copy(&download_path, &dst_path).context(anyhow!("failed to copy"))?;
                 }
                 ReferenceSourceInfo::Zip { url, rel_path, .. } => {
                     let download_path = format!("{}/{}.zip", download_dir, id);
@@ -450,25 +455,24 @@ fn download(ref_list: &Vec<Reference>) -> Result<(), String> {
                         let status = process::Command::new("wget")
                             .args(["--user-agent=Mozilla", "-O", &download_path, url])
                             .status()
-                            .map_err(|e| format!("failed to execute wget: {}", e))?;
+                            .context(anyhow!("failed to execute wget"))?;
                         if !status.success() {
                             let _ = std::fs::remove_file(&download_path);
-                            return Err(format!("wget failed with status: {}", status));
+                            return Err(anyhow!("wget failed with status: {}", status));
                         }
                         let status = process::Command::new("unzip")
                             .args(["-o", "-d", download_dir, &download_path])
                             .status()
-                            .map_err(|e| format!("failed to execute unzip: {}", e))?;
+                            .context(anyhow!("failed to execute unzip"))?;
                         if !status.success() {
-                            return Err(format!("unzip failed with status: {}", status));
+                            return Err(anyhow!("unzip failed with status: {}", status));
                         }
                     }
                     let src_path = format!("{}/{}", download_dir, rel_path);
                     if !std::path::Path::new(&src_path).exists() {
-                        return Err(format!("extracted file not found: {}", src_path));
+                        return Err(anyhow!("extracted file not found: {}", src_path));
                     }
-                    std::fs::copy(&src_path, &dst_path)
-                        .map_err(|e| format!("failed to copy: {}", e))?;
+                    std::fs::copy(&src_path, &dst_path).context(anyhow!("failed to copy"))?;
                 }
             }
             Ok(())
@@ -523,18 +527,18 @@ fn download(ref_list: &Vec<Reference>) -> Result<(), String> {
             .status()
             .expect("failed to execute cp");
         if !status.success() {
-            return Err(format!("cp failed with status: {}", status));
+            return Err(anyhow!("cp failed with status: {}", status));
         }
     }
 
     if !failed_ids.is_empty() {
-        return Err(format!("Some files failed to download: {:?}", failed_ids));
+        return Err(anyhow!("Some files failed to download: {:?}", failed_ids));
     }
 
     Ok(())
 }
 
-fn watch_and_build(rx: Receiver<DebouncedEvent>, target_path: PathBuf) -> Result<(), String> {
+fn watch_and_build(rx: Receiver<DebouncedEvent>, target_path: PathBuf) -> Result<()> {
     use notify::DebouncedEvent::*;
     use std::time::Instant;
     let target_path = std::fs::canonicalize(&target_path).unwrap_or(target_path);
@@ -573,61 +577,46 @@ fn watch_and_build(rx: Receiver<DebouncedEvent>, target_path: PathBuf) -> Result
                     last_self_update = Instant::now();
                 }
             }
-            Err(e) => return Err(format!("watch error: {:?}", e)),
+            Err(e) => return Err(anyhow!("watch error: {:?}", e)),
         }
     }
 }
-fn main() {
+fn main() -> Result<()> {
     let args = Args::parse();
     let file_to_watch = PathBuf::from(&args.data_path);
-
-    let mut do_watch = false;
-    if let Some(command) = &args.command {
-        match command {
-            Commands::Download => {
-                if let Err(e) = || -> Result<(), String> {
-                    let ref_list = parse_references(file_to_watch)?;
-                    download(&ref_list)?;
-                    Ok(())
-                }() {
-                    eprintln!("Error: {}", e);
-                    process::exit(1);
-                }
-                return;
-            }
-            Commands::Watch => {
-                do_watch = true;
-            }
-        }
-    }
-
-    let (tx, rx) = channel();
-    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
-
     let canonical_path = std::fs::canonicalize(&file_to_watch).unwrap_or(file_to_watch.clone());
     let parent_dir = canonical_path
         .parent()
         .unwrap_or(std::path::Path::new("."))
         .to_path_buf();
-
     println!("File to watch: {:?}", &canonical_path);
     println!("Watching directory: {:?}", parent_dir);
-
-    watcher
-        .watch(parent_dir, RecursiveMode::NonRecursive)
-        .unwrap();
-
-    if let Err(e) = || -> Result<(), String> {
-        let ref_list = parse_references(canonical_path.clone())?;
-        build(&ref_list)?;
-        if do_watch {
-            watch_and_build(rx, canonical_path)?;
+    match args.command {
+        Commands::Build => {
+            let ref_list = parse_references(canonical_path.clone())?;
+            build(&ref_list)?;
+            Ok(())
         }
-        Ok(())
-    }() {
-        eprintln!("Error: {}", e);
-        process::exit(1);
-    };
+        Commands::Download => {
+            if let Err(e) = || -> Result<()> {
+                let ref_list = parse_references(file_to_watch)?;
+                download(&ref_list)?;
+                Ok(())
+            }() {
+                eprintln!("Error: {}", e);
+                process::exit(1);
+            }
+            Ok(())
+        }
+        Commands::Watch => {
+            let (tx, rx) = channel();
+            let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+            watcher
+                .watch(parent_dir, RecursiveMode::NonRecursive)
+                .unwrap();
+            watch_and_build(rx, canonical_path)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -636,7 +625,7 @@ mod tests {
 
     #[test]
     fn id_line() {
-        assert_eq!(parse_id_line("# `id`").as_deref(), Ok("id"));
+        assert_eq!(parse_id_line("# `id`").unwrap(), "id".to_string());
         assert!(matches!(parse_id_line("#"), Err(_)));
         assert!(matches!(parse_id_line("# "), Err(_)));
         assert!(matches!(parse_id_line("# ``"), Err(_)));
@@ -645,11 +634,11 @@ mod tests {
     #[test]
     fn page_line() {
         assert_eq!(
-            parse_page_entry("- p.268: page1"),
-            Ok(PdfPageEntry {
+            parse_page_entry("- p.268: page1").unwrap(),
+            PdfPageEntry {
                 page: 268,
                 description: "page1".to_string()
-            })
+            }
         );
         assert!(matches!(parse_id_line("#"), Err(_)));
         assert!(matches!(parse_id_line("# "), Err(_)));
