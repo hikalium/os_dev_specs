@@ -10,3 +10,6 @@ regex = "1"
 clap = { version = "3.1.18", features = ["derive"] }
 anyhow = "1.0.102"
 
+[dev-dependencies]
+tempfile = "3.26.0"
+

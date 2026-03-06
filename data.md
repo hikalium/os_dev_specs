@@ -154,7 +154,7 @@ https://www.ics.uci.edu/~harris/ics216/pci/PCI_22.pdf
 ```
 PCI Express Base Specification
 pdf
-https://www.cl.cam.ac.uk/~djm202/pdf/specifications/pcie/PCI_Express_Base_Rev_2.0_20Dec06a.pdf
+https://web.archive.org/web/20221018180623/https://www.cl.cam.ac.uk/~djm202/pdf/specifications/pcie/PCI_Express_Base_Rev_2.0_20Dec06a.pdf
 ```
 
 - p.415: Figure 7-3: PCI Express Configuration Space Layout

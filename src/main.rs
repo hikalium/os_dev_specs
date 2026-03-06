@@ -7,12 +7,22 @@ use clap::Parser;
 use clap::Subcommand;
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use regex::Regex;
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process;
 use std::slice::Iter;
 use std::sync::mpsc::{channel, Receiver};
 use std::time::Duration;
+
+#[derive(Debug)]
+pub struct VerificationResult {
+    pub filename: String,
+    pub found: bool,
+    pub is_pdf: bool,
+    pub hash_matched: bool,
+}
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -23,6 +33,10 @@ struct Args {
     /// Path to data.md
     #[clap(default_value = "data.md")]
     data_path: String,
+
+    /// Do not modify any files.
+    #[clap(long)]
+    dry_run: bool,
 }
 
 #[derive(Subcommand, Debug)]
@@ -36,13 +50,13 @@ enum Commands {
     /// Verify downloaded files
     Verify,
 }
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Clone)]
 struct Reference {
     id: String,
     source: ReferenceSourceInfo,
     entries: Vec<PdfPageEntry>,
 }
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 struct PdfPageEntry {
     page: u64,
     description: String,
@@ -141,7 +155,7 @@ fn parse_page_entry(line: &str) -> Result<PdfPageEntry> {
         .context(anyhow!("failed to parse page entry. line: {}", line))
 }
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Clone)]
 enum ReferenceSourceInfo {
     Pdf {
         title: String,
@@ -318,7 +332,6 @@ ul {{
         body_contents,
     ).as_bytes()).unwrap();
 }
-
 fn gen_data_md_entry(
     body_contents: &mut Vec<String>,
     id: &str,
@@ -344,6 +357,7 @@ fn gen_data_md_entry(
             .join("\n")
     ));
 }
+
 fn update_data_md(ref_list: &Vec<Reference>) {
     let mut body_contents = vec![];
     for ref_info in ref_list {
@@ -412,7 +426,7 @@ fn build(ref_list: &Vec<Reference>) -> Result<()> {
     Ok(())
 }
 
-fn download(ref_list: &Vec<Reference>) -> Result<()> {
+fn download(ref_list: &Vec<Reference>, dry_run: bool) -> Result<()> {
     let download_dir = "download";
     let spec_dir = "spec";
     let tmp_spec_dir = "spec_tmp";
@@ -486,36 +500,109 @@ fn download(ref_list: &Vec<Reference>) -> Result<()> {
         }
     }
 
-    if !failed_ids.is_empty() {
-        eprintln!(
-            "The following references failed to process: {:?}",
-            failed_ids
-        );
-    }
-
-    let index_txt_path = format!("{}/index.txt", tmp_spec_dir);
-    let output = process::Command::new("sh")
-        .arg("-c")
-        .arg(format!(
-            "sha1sum {}/*.pdf | sed \"s#{}/##g\"",
-            tmp_spec_dir, tmp_spec_dir
-        ))
-        .output()
-        .expect("failed to execute sha1sum");
-    std::fs::write(&index_txt_path, &output.stdout).unwrap();
+    let new_map: HashMap<String, String> = ref_list
+        .iter()
+        .map(|r| {
+            let filename = format!("{}.pdf", r.id);
+            let filepath = PathBuf::from(format!("{}/{}", tmp_spec_dir, filename));
+            if filepath.exists() {
+                let output = process::Command::new("sha1sum")
+                    .arg(&filepath)
+                    .output()
+                    .expect("failed to execute sha1sum");
+                let hash_line = String::from_utf8(output.stdout).unwrap();
+                let hash = hash_line
+                    .split_whitespace()
+                    .next()
+                    .unwrap_or("")
+                    .to_string();
+                (filename, hash)
+            } else {
+                (filename, "?".to_string())
+            }
+        })
+        .collect();
 
     let old_index_path = format!("{}/index.txt", spec_dir);
     let mut needs_update = true;
     if std::path::Path::new(&old_index_path).exists() {
-        let status = process::Command::new("diff")
-            .args(["-u", &old_index_path, &index_txt_path])
-            .status()
-            .expect("failed to execute diff");
-        if status.success() {
+        let old_index_content = std::fs::read_to_string(&old_index_path).unwrap();
+        let old_map: HashMap<String, String> = old_index_content
+            .lines()
+            .filter_map(|line| {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if parts.len() >= 2 {
+                    Some((parts[1].to_string(), parts[0].to_string()))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        if old_map.iter().all(|(k, v)| new_map.get(k) == Some(v)) && old_map.len() == new_map.len()
+        {
             println!("Files up to date");
             needs_update = false;
+            let _ = std::fs::remove_dir_all(tmp_spec_dir);
         } else {
-            println!("Diff found. Do you want to update? [Enter to proceed, or Ctrl-C to cancel]");
+            println!("Diff found.");
+
+            let mut all_files: HashSet<String> = old_map.keys().cloned().collect();
+            all_files.extend(new_map.keys().cloned());
+
+            let mut sorted_files: Vec<String> = all_files.into_iter().collect();
+            sorted_files.sort();
+
+            for filename in sorted_files {
+                let old_hash = old_map.get(&filename);
+                let new_hash = new_map.get(&filename);
+
+                match (old_hash, new_hash) {
+                    (Some(old_h), Some(new_h)) => {
+                        if old_h != new_h {
+                            let filepath = PathBuf::from(format!("{}/{}", tmp_spec_dir, filename));
+                            let verification_result = verify_file(&filepath, new_h)?;
+                            println!(
+                                "~ {:32} <downloaded> is_pdf: {} hash_matched: {}",
+                                filename,
+                                verification_result.is_pdf,
+                                verification_result.hash_matched
+                            );
+                        }
+                    }
+                    (None, Some(new_h)) => {
+                        if new_h == "?" {
+                            println!(
+                                "+ {:32} found: false is_pdf: false hash_matched: false",
+                                filename
+                            );
+                        } else {
+                            let filepath = PathBuf::from(format!("{}/{}", tmp_spec_dir, filename));
+                            let verification_result = verify_file(&filepath, new_h)?;
+                            println!(
+                                "+ {:32} <downloaded> is_pdf: {} hash_matched: {}",
+                                filename,
+                                verification_result.is_pdf,
+                                verification_result.hash_matched
+                            );
+                        }
+                    }
+                    (Some(_), None) => {
+                        println!(
+                            "- {:32} found: true is_pdf: true hash_matched: true",
+                            filename
+                        );
+                    }
+                    (None, None) => {}
+                }
+            }
+
+            if dry_run {
+                println!("Dry run: no changes will be applied.");
+                let _ = std::fs::remove_dir_all(tmp_spec_dir);
+                return Ok(());
+            }
+            println!("Do you want to update? [Enter to proceed, or Ctrl-C to cancel]");
             let mut input = String::new();
             std::io::stdin().read_line(&mut input).unwrap();
         }
@@ -523,14 +610,13 @@ fn download(ref_list: &Vec<Reference>) -> Result<()> {
 
     if needs_update {
         let _ = std::fs::remove_dir_all(spec_dir);
-        std::fs::create_dir_all(spec_dir).unwrap();
-        let status = process::Command::new("cp")
-            .args(["-rv", &format!("{}/.", tmp_spec_dir), spec_dir])
-            .status()
-            .expect("failed to execute cp");
-        if !status.success() {
-            return Err(anyhow!("cp failed with status: {}", status));
-        }
+        std::fs::rename(tmp_spec_dir, spec_dir).unwrap();
+        let new_index_content = new_map
+            .iter()
+            .map(|(filename, hash)| format!("{}  {}", hash, filename))
+            .collect::<Vec<String>>()
+            .join("\n");
+        std::fs::write(&old_index_path, &new_index_content).unwrap();
     }
 
     if !failed_ids.is_empty() {
@@ -538,6 +624,44 @@ fn download(ref_list: &Vec<Reference>) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn verify_file(filepath: &PathBuf, expected_hash: &str) -> Result<VerificationResult> {
+    let filename = filepath
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string();
+
+    let mut is_pdf = false;
+    let mut hash_matched = false;
+    let found = filepath.exists();
+
+    if found {
+        // Check file type
+        let file_output = process::Command::new("file")
+            .arg(filepath)
+            .output()
+            .context("failed to execute 'file' command")?;
+        let file_type = String::from_utf8_lossy(&file_output.stdout);
+        is_pdf = file_type.contains("PDF document");
+
+        // Check hash
+        let sha1_output = process::Command::new("sha1sum")
+            .arg(filepath)
+            .output()
+            .context("failed to execute 'sha1sum' command")?;
+        let sha1_hash = String::from_utf8_lossy(&sha1_output.stdout);
+        let calculated_hash = sha1_hash.split_whitespace().next().unwrap_or("");
+        hash_matched = calculated_hash == expected_hash;
+    }
+
+    Ok(VerificationResult {
+        filename,
+        found,
+        is_pdf,
+        hash_matched,
+    })
 }
 
 fn watch_and_build(rx: Receiver<DebouncedEvent>, target_path: PathBuf) -> Result<()> {
@@ -584,9 +708,16 @@ fn watch_and_build(rx: Receiver<DebouncedEvent>, target_path: PathBuf) -> Result
     }
 }
 
-fn verify() -> Result<()> {
+fn verify(data_path: &str) -> Result<()> {
+    let ref_list = parse_references(PathBuf::from(data_path))?;
+    let expected_files: HashSet<String> =
+        ref_list.iter().map(|r| format!("{}.pdf", r.id)).collect();
+
     let index_content =
         std::fs::read_to_string("spec/index.txt").context("failed to read spec/index.txt")?;
+
+    let mut found_files = HashSet::new();
+
     for line in index_content.lines() {
         let parts: Vec<&str> = line.split_whitespace().collect();
         if parts.len() != 2 {
@@ -594,35 +725,29 @@ fn verify() -> Result<()> {
         }
         let hash = parts[0];
         let filename = parts[1];
-        let filepath = format!("spec/{}", filename);
+        let filepath = PathBuf::from(format!("spec/{}", filename));
 
-        // Check file type
-        let file_output = process::Command::new("file")
-            .arg(&filepath)
-            .output()
-            .context("failed to execute 'file' command")?;
-        let file_type = String::from_utf8_lossy(&file_output.stdout);
-        let is_pdf = file_type.contains("PDF document");
+        found_files.insert(filename.to_string());
 
-        // Check hash
-        let sha1_output = process::Command::new("sha1sum")
-            .arg(&filepath)
-            .output()
-            .context("failed to execute 'sha1sum' command")?;
-        let sha1_hash = String::from_utf8_lossy(&sha1_output.stdout);
-        let calculated_hash = sha1_hash.split_whitespace().next().unwrap_or("");
-
+        let verification_result = verify_file(&filepath, hash)?;
         println!(
-            "{:32} pdf: {:4} hash: {:4}",
-            filename,
-            if is_pdf { " ok " } else { "*NG*" },
-            if calculated_hash == hash {
-                " ok "
-            } else {
-                "*NG*"
-            }
+            "{:32} found: {} is_pdf: {} hash_matched: {}",
+            verification_result.filename,
+            verification_result.found,
+            verification_result.is_pdf,
+            verification_result.hash_matched
         );
     }
+
+    let missing_files: Vec<String> = expected_files.difference(&found_files).cloned().collect();
+
+    for filename in missing_files {
+        println!(
+            "{:32} found: false is_pdf: false hash_matched: false",
+            filename
+        );
+    }
+
     Ok(())
 }
 
@@ -645,7 +770,7 @@ fn main() -> Result<()> {
         Commands::Download => {
             if let Err(e) = || -> Result<()> {
                 let ref_list = parse_references(file_to_watch)?;
-                download(&ref_list)?;
+                download(&ref_list, args.dry_run)?;
                 Ok(())
             }() {
                 eprintln!("Error: {}", e);
@@ -661,7 +786,7 @@ fn main() -> Result<()> {
                 .unwrap();
             watch_and_build(rx, canonical_path)
         }
-        Commands::Verify => verify(),
+        Commands::Verify => verify(&args.data_path),
     }
 }
 
@@ -690,5 +815,41 @@ mod tests {
         assert!(matches!(parse_id_line("# "), Err(_)));
         assert!(matches!(parse_id_line("# ``"), Err(_)));
         assert!(matches!(parse_id_line("`id`"), Err(_)));
+    }
+
+    #[test]
+    fn download_prioritizes_missing_file() {
+        let tmp_dir = tempfile::Builder::new().prefix("test-").tempdir().unwrap();
+        let spec_dir = tmp_dir.path().join("spec");
+        std::fs::create_dir(&spec_dir).unwrap();
+        let data_md_path = tmp_dir.path().join("data.md");
+        let index_txt_path = spec_dir.join("index.txt");
+
+        let mut data_md_content = "# `test_spec`\n".to_string();
+        data_md_content.push_str("```\nTest Spec\npdf\nhttps://example.com/test.pdf\n```\n");
+        std::fs::write(&data_md_path, data_md_content).unwrap();
+        std::fs::write(&index_txt_path, "12345  test_spec.pdf\n").unwrap();
+
+        let ref_list = parse_references(data_md_path).unwrap();
+
+        let existing_ids: HashSet<String> = std::fs::read_dir(&spec_dir)
+            .unwrap()
+            .filter_map(|entry| {
+                let entry = entry.unwrap();
+                let path = entry.path();
+                if path.is_file() && path.extension().map_or(false, |e| e == "pdf") {
+                    path.file_stem().map(|s| s.to_string_lossy().into_owned())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let (missing_refs, _): (Vec<_>, Vec<_>) = ref_list
+            .iter()
+            .cloned()
+            .partition(|r| !existing_ids.contains(&r.id));
+
+        assert_eq!(missing_refs.len(), 1);
     }
 }
