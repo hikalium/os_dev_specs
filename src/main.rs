@@ -33,6 +33,8 @@ enum Commands {
     Download,
     /// Monitor updates and rebuild
     Watch,
+    /// Verify downloaded files
+    Verify,
 }
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct Reference {
@@ -581,6 +583,49 @@ fn watch_and_build(rx: Receiver<DebouncedEvent>, target_path: PathBuf) -> Result
         }
     }
 }
+
+fn verify() -> Result<()> {
+    let index_content =
+        std::fs::read_to_string("spec/index.txt").context("failed to read spec/index.txt")?;
+    for line in index_content.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() != 2 {
+            continue;
+        }
+        let hash = parts[0];
+        let filename = parts[1];
+        let filepath = format!("spec/{}", filename);
+
+        // Check file type
+        let file_output = process::Command::new("file")
+            .arg(&filepath)
+            .output()
+            .context("failed to execute 'file' command")?;
+        let file_type = String::from_utf8_lossy(&file_output.stdout);
+        let is_pdf = file_type.contains("PDF document");
+
+        // Check hash
+        let sha1_output = process::Command::new("sha1sum")
+            .arg(&filepath)
+            .output()
+            .context("failed to execute 'sha1sum' command")?;
+        let sha1_hash = String::from_utf8_lossy(&sha1_output.stdout);
+        let calculated_hash = sha1_hash.split_whitespace().next().unwrap_or("");
+
+        println!(
+            "{:32} pdf: {:4} hash: {:4}",
+            filename,
+            if is_pdf { " ok " } else { "*NG*" },
+            if calculated_hash == hash {
+                " ok "
+            } else {
+                "*NG*"
+            }
+        );
+    }
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
     let file_to_watch = PathBuf::from(&args.data_path);
@@ -616,6 +661,7 @@ fn main() -> Result<()> {
                 .unwrap();
             watch_and_build(rx, canonical_path)
         }
+        Commands::Verify => verify(),
     }
 }
 
